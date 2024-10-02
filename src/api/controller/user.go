@@ -30,3 +30,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+func Auth(w http.ResponseWriter, r *http.Request) {
+
+}

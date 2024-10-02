@@ -7,7 +7,9 @@ services:
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=root
     ports:
-      - "5432:5432"
+      - "1234:1234"
     volumes:
-      - ./migration/docker-database-initial.sql:/docker-entrypoint-initdb.d/docker-database-initial.sql
+      - ./migration/initial-db.sql:/docker-entrypoint-initdb.d/docker-database-initial.sql
+      - ./migration/user-roles.sql:/docker-entrypoint-initdb.d/user-roles.sql
     restart: always
+    command: -p 1234
