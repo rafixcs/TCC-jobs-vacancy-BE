@@ -12,4 +12,5 @@ type JobRouter struct {
 func (r *JobRouter) CreateRoutes() {
 	r.Router.HandleFunc("/api/user", controller.CreateUser).Methods("POST")
 	r.Router.HandleFunc("/api/auth", controller.Auth).Methods("POST")
+	r.Router.HandleFunc("/api/logout", controller.Logout).Methods("POST")
 }

@@ -16,7 +16,7 @@ CREATE TABLE "user_logins"(
     "id" VARCHAR(255) NOT NULL,
     "user_id" VARCHAR(255) NOT NULL,
     "login_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "logout_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
+    "logout_date" TIMESTAMP(0) WITHOUT TIME ZONE NULL
 );
 ALTER TABLE
     "user_logins" ADD PRIMARY KEY("id");
