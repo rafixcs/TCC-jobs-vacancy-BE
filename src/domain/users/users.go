@@ -100,9 +100,7 @@ func UserAuth(name, password string) (string, error) {
 
 	userModel := models.UserModels{
 		Id:       id,
-		Name:     _name,
 		Password: pass,
-		RoleId:   roleId,
 	}
 
 	passwordMatching := utils.ValidatePasswordHash(password, userModel.Password)
