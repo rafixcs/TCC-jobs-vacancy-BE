@@ -11,6 +11,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
+	golang.org/x/crypto v0.27.0
 	golang.org/x/text v0.18.0 // indirect
 	gorm.io/gorm v1.25.12 // indirect
 )

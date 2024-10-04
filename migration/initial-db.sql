@@ -1,10 +1,10 @@
-CREATE TABLE "company"(
+CREATE TABLE "companies"(
     "id" VARCHAR(255) NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "creation_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE
-    "company" ADD PRIMARY KEY("id");
+    "companies" ADD PRIMARY KEY("id");
 CREATE TABLE "user_applies"(
     "id" VARCHAR(255) NOT NULL,
     "job_vacancy_id" VARCHAR(255) NOT NULL,
@@ -57,8 +57,8 @@ ALTER TABLE
 ALTER TABLE
     "company_users" ADD CONSTRAINT "company_users_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id");
 ALTER TABLE
-    "job_vacancies" ADD CONSTRAINT "job_vacancies_id_foreign" FOREIGN KEY("id") REFERENCES "company"("id");
+    "job_vacancies" ADD CONSTRAINT "job_vacancies_id_foreign" FOREIGN KEY("id") REFERENCES "companies"("id");
 ALTER TABLE
-    "company_users" ADD CONSTRAINT "company_users_company_id_foreign" FOREIGN KEY("company_id") REFERENCES "company"("id");
+    "company_users" ADD CONSTRAINT "company_users_company_id_foreign" FOREIGN KEY("company_id") REFERENCES "companies"("id");
 ALTER TABLE
     "user_applies" ADD CONSTRAINT "user_applies_job_vacancy_id_foreign" FOREIGN KEY("job_vacancy_id") REFERENCES "job_vacancies"("id");

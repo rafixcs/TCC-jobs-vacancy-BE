@@ -28,7 +28,7 @@ func UserPasswordValidation(name, password string) error {
 	return nil
 }
 
-func CreateUser(name, password string) error {
+func CreateUser(name, password string, role int) error {
 	err := UserPasswordValidation(name, password)
 	if err != nil {
 		return err
@@ -53,10 +53,15 @@ func CreateUser(name, password string) error {
 	}
 
 	userId := uuid.NewString()
-	roleId := 2 // standard user
+	roleId := role // standard user
+
+	hashedPassword, err := utils.HashPassword(password)
+	if err != nil {
+		return err
+	}
 
 	query = `INSERT INTO users(id, name, password, role_id) VALUES ($1, $2, $3, $4)`
-	_, err = db.Exec(query, userId, name, password, roleId)
+	_, err = db.Exec(query, userId, name, hashedPassword, roleId)
 
 	if err != nil {
 		return err
@@ -100,7 +105,8 @@ func UserAuth(name, password string) (string, error) {
 		RoleId:   roleId,
 	}
 
-	if userModel.Password != password {
+	passwordMatching := utils.ValidatePasswordHash(password, userModel.Password)
+	if !passwordMatching {
 		return "", fmt.Errorf("user/password not matching")
 	}
 

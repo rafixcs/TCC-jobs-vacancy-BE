@@ -21,7 +21,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = users.CreateUser(userRequest.Name, userRequest.Password)
+	err = users.CreateUser(userRequest.Name, userRequest.Password, 2) // role hard coded
 	if err != nil {
 		message := fmt.Sprintf("failed to create user: %s", err.Error())
 		http.Error(w, message, http.StatusBadRequest)
