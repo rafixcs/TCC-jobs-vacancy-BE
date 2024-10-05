@@ -11,11 +11,14 @@ import (
 
 func main() {
 
-	db, err := datasources.OpenDb()
+	database := datasources.DatabasePsql{}
+	database.Open()
+	err := database.GetError()
+
 	if err != nil {
 		panic(err)
 	}
-	db.Close()
+	database.Close()
 
 	r := mux.NewRouter()
 

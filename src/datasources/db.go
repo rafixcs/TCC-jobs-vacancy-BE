@@ -7,17 +7,39 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func OpenDb() (*sql.DB, error) {
+type IDatabasePsql interface {
+	Open()
+	Close()
+	GetDB() *sql.DB
+	GetError() error
+}
+
+type DatabasePsql struct {
+	DB    *sql.DB
+	Error error
+}
+
+func (dbpsql *DatabasePsql) Open() {
 	dsn := fmt.Sprintf(`host=%s port=%s user=%s password=%s dbname=%s sslmode=disable`, "localhost", "1234", "root", "root", "root")
-	db, err := sql.Open("postgres", dsn)
-	if err != nil {
-		return nil, err
+	dbpsql.DB, dbpsql.Error = sql.Open("postgres", dsn)
+	if dbpsql.Error != nil {
+		return
 	}
 
-	err = db.Ping()
-	if err != nil {
-		return nil, err
+	dbpsql.Error = dbpsql.DB.Ping()
+	if dbpsql.Error != nil {
+		return
 	}
+}
 
-	return db, nil
+func (dbpsql *DatabasePsql) Close() {
+	dbpsql.DB.Close()
+}
+
+func (dbpsql *DatabasePsql) GetDB() *sql.DB {
+	return dbpsql.DB
+}
+
+func (dbpsql *DatabasePsql) GetError() error {
+	return dbpsql.Error
 }

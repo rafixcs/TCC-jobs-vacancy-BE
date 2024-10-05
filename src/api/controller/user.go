@@ -5,14 +5,18 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/users"
+	"github.com/rafixcs/tcc-job-vacancy/src/repository/repousers"
 )
 
 type CreateUserRequest struct {
-	Name     string
-	Password string
+	Name     string `json:"name"`
+	Password string `json:"password"`
+	RoleId   int    `json:"role_id"`
 }
 
+// Add factory
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var userRequest CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&userRequest)
@@ -21,7 +25,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = users.CreateUser(userRequest.Name, userRequest.Password, 2) // role hard coded
+	datasource := datasources.DatabasePsql{}
+	userRepo := repousers.UserRepository{Datasource: &datasource}
+	userDomain := users.UserDomain{UserRepo: &userRepo}
+
+	err = userDomain.CreateUser(userRequest.Name, userRequest.Password, userRequest.RoleId)
 	if err != nil {
 		message := fmt.Sprintf("failed to create user: %s", err.Error())
 		http.Error(w, message, http.StatusBadRequest)
@@ -38,37 +46,4 @@ type AuthRequest struct {
 
 type AuthResponse struct {
 	Token string `json:"token"`
-}
-
-func Auth(w http.ResponseWriter, r *http.Request) {
-	var authRequest AuthRequest
-	err := json.NewDecoder(r.Body).Decode(&authRequest)
-	if err != nil {
-		http.Error(w, "bad body format", http.StatusBadRequest)
-		return
-	}
-
-	token, err := users.UserAuth(authRequest.Name, authRequest.Password)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
-		return
-	}
-
-	authResponse := AuthResponse{
-		Token: token,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(&authResponse)
-}
-
-func Logout(w http.ResponseWriter, r *http.Request) {
-	tokenHeader := r.Header.Get("Authorization")
-	err := users.Logout(tokenHeader)
-	if err != nil {
-		http.Error(w, "failed to logout", http.StatusUnauthorized)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
 }
