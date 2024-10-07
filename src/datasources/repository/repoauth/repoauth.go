@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
-	"github.com/rafixcs/tcc-job-vacancy/src/datasources/models"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/models"
 )
 
 type IAuthRepository interface {

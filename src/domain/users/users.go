@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/rafixcs/tcc-job-vacancy/src/repository/repousers"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repousers"
 	"github.com/rafixcs/tcc-job-vacancy/src/utils"
 )
 

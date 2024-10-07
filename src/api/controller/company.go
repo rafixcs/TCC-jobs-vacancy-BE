@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repocompany"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/company"
-	"github.com/rafixcs/tcc-job-vacancy/src/repository/repocompany"
 )
 
 type CreateCompanyRequest struct {

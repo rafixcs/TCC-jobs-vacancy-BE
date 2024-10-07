@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repoauth"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repousers"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/auth"
-	"github.com/rafixcs/tcc-job-vacancy/src/repository/repoauth"
-	"github.com/rafixcs/tcc-job-vacancy/src/repository/repousers"
 )
 
 func Auth(w http.ResponseWriter, r *http.Request) {

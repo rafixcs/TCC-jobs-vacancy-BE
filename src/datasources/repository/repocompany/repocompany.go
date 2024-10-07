@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
-	"github.com/rafixcs/tcc-job-vacancy/src/repository/models"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/models"
 )
 
 type ICompanyRepository interface {

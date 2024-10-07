@@ -6,10 +6,10 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/rafixcs/tcc-job-vacancy/src/datasources/models"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/models"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repoauth"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repousers"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/users"
-	"github.com/rafixcs/tcc-job-vacancy/src/repository/repoauth"
-	"github.com/rafixcs/tcc-job-vacancy/src/repository/repousers"
 	"github.com/rafixcs/tcc-job-vacancy/src/utils"
 )
 

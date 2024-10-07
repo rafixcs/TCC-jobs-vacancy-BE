@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repousers"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/users"
-	"github.com/rafixcs/tcc-job-vacancy/src/repository/repousers"
 )
 
 type CreateUserRequest struct {

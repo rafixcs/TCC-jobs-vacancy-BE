@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rafixcs/tcc-job-vacancy/src/repository/models"
-	"github.com/rafixcs/tcc-job-vacancy/src/repository/repocompany"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/models"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repocompany"
 )
 
 type ICompanyDomain interface {
