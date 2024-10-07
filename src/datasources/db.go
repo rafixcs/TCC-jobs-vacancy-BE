@@ -20,7 +20,7 @@ type DatabasePsql struct {
 }
 
 func (dbpsql *DatabasePsql) Open() {
-	dsn := fmt.Sprintf(`host=%s port=%s user=%s password=%s dbname=%s sslmode=disable`, "localhost", "1234", "root", "root", "root")
+	dsn := fmt.Sprintf(`host=%s port=%s user=%s password=%s dbname=%s sslmode=disable`, "localhost", "12345", "root", "root", "root")
 	dbpsql.DB, dbpsql.Error = sql.Open("postgres", dsn)
 	if dbpsql.Error != nil {
 		return

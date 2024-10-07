@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/company"
+	"github.com/rafixcs/tcc-job-vacancy/src/repository/repocompany"
 )
 
 type CreateCompanyRequest struct {
@@ -21,7 +23,11 @@ func CreateCompany(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = company.CreateCompany(createCompanyRequest.Name)
+	datasource := datasources.DatabasePsql{}
+	companyRepo := repocompany.CompanyRepository{Datasource: &datasource}
+	companyDomain := company.CompanyDomain{CompanyRepo: &companyRepo}
+
+	err = companyDomain.CreateCompany(createCompanyRequest.Name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
@@ -40,7 +46,11 @@ type GetCompaniesResponse struct {
 }
 
 func GetCompanies(w http.ResponseWriter, r *http.Request) {
-	companiesModels, err := company.CompaniesList()
+	datasource := datasources.DatabasePsql{}
+	companyRepo := repocompany.CompanyRepository{Datasource: &datasource}
+	companyDomain := company.CompanyDomain{CompanyRepo: &companyRepo}
+
+	companiesModels, err := companyDomain.CompaniesList()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
