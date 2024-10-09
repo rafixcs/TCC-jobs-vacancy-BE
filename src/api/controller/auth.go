@@ -10,6 +10,15 @@ import (
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/auth"
 )
 
+type AuthRequest struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+}
+
+type AuthResponse struct {
+	Token string `json:"token"`
+}
+
 func Auth(w http.ResponseWriter, r *http.Request) {
 	var authRequest AuthRequest
 	err := json.NewDecoder(r.Body).Decode(&authRequest)

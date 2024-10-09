@@ -22,8 +22,10 @@ ALTER TABLE
     "user_logins" ADD PRIMARY KEY("id");
 CREATE TABLE "job_vacancies"(
     "id" VARCHAR(255) NOT NULL,
+    "user_id" VARCHAR(255) NOT NULL,
     "company_id" VARCHAR(255) NOT NULL,
-    "description" VARCHAR(255) NOT NULL,
+    "description" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
     "creation_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE
@@ -51,13 +53,15 @@ CREATE INDEX "company_users_company_id_index" ON
 ALTER TABLE
     "users" ADD CONSTRAINT "users_role_id_foreign" FOREIGN KEY("role_id") REFERENCES "user_roles"("id");
 ALTER TABLE
+    "job_vacancies" ADD CONSTRAINT "job_vacancies_company_id_foreign" FOREIGN KEY("company_id") REFERENCES "companies"("id");
+ALTER TABLE
+    "job_vacancies" ADD CONSTRAINT "job_vacancies_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id");
+ALTER TABLE
     "user_applies" ADD CONSTRAINT "user_applies_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id");
 ALTER TABLE
     "user_logins" ADD CONSTRAINT "user_logins_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id");
 ALTER TABLE
     "company_users" ADD CONSTRAINT "company_users_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "users"("id");
-ALTER TABLE
-    "job_vacancies" ADD CONSTRAINT "job_vacancies_id_foreign" FOREIGN KEY("id") REFERENCES "companies"("id");
 ALTER TABLE
     "company_users" ADD CONSTRAINT "company_users_company_id_foreign" FOREIGN KEY("company_id") REFERENCES "companies"("id");
 ALTER TABLE

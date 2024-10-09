@@ -11,9 +11,10 @@ import (
 )
 
 type CreateUserRequest struct {
-	Name     string `json:"name"`
-	Password string `json:"password"`
-	RoleId   int    `json:"role_id"`
+	Name        string `json:"name"`
+	Password    string `json:"password"`
+	CompanyName string `json:"company"`
+	RoleId      int    `json:"role_id"`
 }
 
 // Add factory
@@ -29,7 +30,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	userRepo := repousers.UserRepository{Datasource: &datasource}
 	userDomain := users.UserDomain{UserRepo: &userRepo}
 
-	err = userDomain.CreateUser(userRequest.Name, userRequest.Password, userRequest.RoleId)
+	err = userDomain.CreateUser(userRequest.Name, userRequest.Password, userRequest.CompanyName, userRequest.RoleId)
 	if err != nil {
 		message := fmt.Sprintf("failed to create user: %s", err.Error())
 		http.Error(w, message, http.StatusBadRequest)
@@ -37,13 +38,4 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-}
-
-type AuthRequest struct {
-	Name     string `json:"name"`
-	Password string `json:"password"`
-}
-
-type AuthResponse struct {
-	Token string `json:"token"`
 }
