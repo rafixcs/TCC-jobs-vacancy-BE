@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
-	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repousers"
-	"github.com/rafixcs/tcc-job-vacancy/src/domain/users"
+	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/userfactory"
 )
 
 type CreateUserRequest struct {
@@ -26,9 +24,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	datasource := datasources.DatabasePsql{}
-	userRepo := repousers.UserRepository{Datasource: &datasource}
-	userDomain := users.UserDomain{UserRepo: &userRepo}
+	userDomain := userfactory.CreateUserDomain()
 
 	err = userDomain.CreateUser(userRequest.Name, userRequest.Password, userRequest.CompanyName, userRequest.RoleId)
 	if err != nil {

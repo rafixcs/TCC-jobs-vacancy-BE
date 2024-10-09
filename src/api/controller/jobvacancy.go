@@ -4,10 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
-	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repocompany"
-	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repojobvacancy"
-	"github.com/rafixcs/tcc-job-vacancy/src/domain/jobvacancy"
+	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/jobfactory"
 	"github.com/rafixcs/tcc-job-vacancy/src/utils"
 )
 
@@ -28,10 +25,7 @@ func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 	var requestContent CreateJobVacancyRequest
 	json.NewDecoder(r.Body).Decode(&requestContent)
 
-	datasource := datasources.DatabasePsql{}
-	repoCompany := repocompany.CompanyRepository{Datasource: &datasource}
-	jobvacancyRepo := repojobvacancy.JobVacancyRepository{Datasource: &datasource}
-	jobvacancyDomain := jobvacancy.JobVacancyDomain{JobVacancyRepo: &jobvacancyRepo, CompanyRepo: &repoCompany}
+	jobvacancyDomain := jobfactory.CreateJobVacancyDomain()
 
 	err = jobvacancyDomain.CreateJobVacancy(userId, requestContent.CompanyName, requestContent.Description, requestContent.Title)
 	if err != nil {
@@ -56,10 +50,7 @@ func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	datasource := datasources.DatabasePsql{}
-	repoCompany := repocompany.CompanyRepository{Datasource: &datasource}
-	jobvacancyRepo := repojobvacancy.JobVacancyRepository{Datasource: &datasource}
-	jobvacancyDomain := jobvacancy.JobVacancyDomain{JobVacancyRepo: &jobvacancyRepo, CompanyRepo: &repoCompany}
+	jobvacancyDomain := jobfactory.CreateJobVacancyDomain()
 
 	err = jobvacancyDomain.CreateUserJobApply(userId, jobId)
 	if err != nil {

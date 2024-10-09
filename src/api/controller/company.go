@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/companyfactory"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repocompany"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/company"
@@ -46,9 +47,7 @@ type GetCompaniesResponse struct {
 }
 
 func GetCompanies(w http.ResponseWriter, r *http.Request) {
-	datasource := datasources.DatabasePsql{}
-	companyRepo := repocompany.CompanyRepository{Datasource: &datasource}
-	companyDomain := company.CompanyDomain{CompanyRepo: &companyRepo}
+	companyDomain := companyfactory.CreateCompanyDomain()
 
 	companiesModels, err := companyDomain.CompaniesList()
 	if err != nil {

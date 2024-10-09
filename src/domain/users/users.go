@@ -10,7 +10,7 @@ import (
 )
 
 type IUserDomain interface {
-	CreateUser(name, password string, roleId int) error
+	CreateUser(name, password, companyName string, roleId int) error
 }
 
 type UserDomain struct {
