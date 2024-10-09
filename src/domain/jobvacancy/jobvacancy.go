@@ -10,6 +10,8 @@ import (
 )
 
 type IJobVacancyDomain interface {
+	CreateJobVacancy(userId, companyName, description, title string) error
+	CreateUserJobApply(userId, jobId string) error
 }
 
 type JobVacancyDomain struct {
@@ -33,6 +35,22 @@ func (d JobVacancyDomain) CreateJobVacancy(userId, companyName, description, tit
 	}
 
 	err = d.JobVacancyRepo.CreateJobVacancy(jobVacancy)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d JobVacancyDomain) CreateUserJobApply(userId, jobId string) error {
+
+	userApply := models.UserApplies{
+		Id:           uuid.NewString(),
+		UserId:       userId,
+		JobVacancyId: jobId,
+	}
+
+	err := d.JobVacancyRepo.CreateUserJobApply(userApply)
 	if err != nil {
 		return err
 	}

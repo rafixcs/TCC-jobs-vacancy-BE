@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
-	"github.com/rafixcs/tcc-job-vacancy/src/datasources/models"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repocompany"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repojobvacancy"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/jobvacancy"
@@ -59,26 +57,13 @@ func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	datasource := datasources.DatabasePsql{}
+	repoCompany := repocompany.CompanyRepository{Datasource: &datasource}
+	jobvacancyRepo := repojobvacancy.JobVacancyRepository{Datasource: &datasource}
+	jobvacancyDomain := jobvacancy.JobVacancyDomain{JobVacancyRepo: &jobvacancyRepo, CompanyRepo: &repoCompany}
 
-	datasource.Open()
-	err = datasource.GetError()
+	err = jobvacancyDomain.CreateUserJobApply(userId, jobId)
 	if err != nil {
-		http.Error(w, "db error: "+err.Error(), http.StatusUnauthorized)
-		return
-	}
-	defer datasource.Close()
-	db := datasource.GetDB()
-
-	userApply := models.UserApplies{
-		Id:           uuid.NewString(),
-		UserId:       userId,
-		JobVacancyId: jobId,
-	}
-
-	query := `INSERT INTO user_applies (id, job_vacancy_id, user_id) VALUES ($1, $2, $3)`
-	_, err = db.Exec(query, userApply.Id, userApply.JobVacancyId, userApply.UserId)
-	if err != nil {
-		http.Error(w, "execute query failled: "+err.Error(), http.StatusUnauthorized)
+		http.Error(w, "could not create user apply", http.StatusUnauthorized)
 		return
 	}
 
