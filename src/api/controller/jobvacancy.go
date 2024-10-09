@@ -2,15 +2,14 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
-	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/models"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/models"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repocompany"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repojobvacancy"
+	"github.com/rafixcs/tcc-job-vacancy/src/domain/jobvacancy"
 	"github.com/rafixcs/tcc-job-vacancy/src/utils"
 )
 
@@ -22,7 +21,7 @@ type CreateJobVacancyRequest struct {
 
 func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 	tokenHeader := r.Header.Get("Authorization")
-	userId, err := getUserIdFromToken(tokenHeader)
+	userId, err := utils.GetUserIdFromToken(tokenHeader)
 	if err != nil {
 		http.Error(w, "failed to parse Authorization token", http.StatusUnauthorized)
 		return
@@ -33,65 +32,55 @@ func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 
 	datasource := datasources.DatabasePsql{}
 	repoCompany := repocompany.CompanyRepository{Datasource: &datasource}
-	company, err := repoCompany.FindCompanyByName(requestContent.CompanyName)
+	jobvacancyRepo := repojobvacancy.JobVacancyRepository{Datasource: &datasource}
+	jobvacancyDomain := jobvacancy.JobVacancyDomain{JobVacancyRepo: &jobvacancyRepo, CompanyRepo: &repoCompany}
+
+	err = jobvacancyDomain.CreateJobVacancy(userId, requestContent.CompanyName, requestContent.Description, requestContent.Title)
 	if err != nil {
-		http.Error(w, "failed to get company", http.StatusInternalServerError)
-		return
-	}
-
-	jobVacancy := models.JobVacancy{
-		Id:           uuid.NewString(),
-		UserId:       userId,
-		CompanyId:    company.Id,
-		Title:        requestContent.Title,
-		Description:  requestContent.Description,
-		CreationDate: time.Now(),
-	}
-
-	query := "INSERT INTO job_vacancies(id, user_id, company_id, description, title, creation_date) VALUES ($1, $2, $3, $4, $5, $6)"
-
-	datasource.Open()
-	err = datasource.GetError()
-	if err != nil {
-		http.Error(w, "failed to open", http.StatusInternalServerError)
-		return
-	}
-	defer datasource.Close()
-	db := datasource.GetDB()
-
-	_, err = db.Exec(query, jobVacancy.Id, jobVacancy.UserId, jobVacancy.CompanyId, jobVacancy.Description, jobVacancy.Title, jobVacancy.CreationDate)
-	if err != nil {
-		http.Error(w, "failed to insert: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "failed to create job vacancy", http.StatusBadRequest)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
 }
 
-func getUserIdFromToken(tokenHeader string) (string, error) {
-	token, err := utils.ParseToken(tokenHeader)
-	if err != nil {
-		return "", fmt.Errorf("invalid token")
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return "", fmt.Errorf("invalid token claims")
-	}
-
-	userId, ok := claims["user_id"].(string)
-	if !ok {
-		return "", fmt.Errorf("token missing user field")
-	}
-
-	return userId, nil
-}
-
 func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
-	/*tokenHeader := r.Header.Get("Authorization")
-	userId, err := getUserIdFromToken(tokenHeader)
+	tokenHeader := r.Header.Get("Authorization")
+	userId, err := utils.GetUserIdFromToken(tokenHeader)
 	if err != nil {
 		http.Error(w, "failed to parse Authorization token", http.StatusUnauthorized)
 		return
-	}*/
+	}
+
+	jobId := r.URL.Query().Get("job_id")
+	if jobId == "" {
+		http.Error(w, "missing job_id", http.StatusUnauthorized)
+		return
+	}
+
+	datasource := datasources.DatabasePsql{}
+
+	datasource.Open()
+	err = datasource.GetError()
+	if err != nil {
+		http.Error(w, "db error: "+err.Error(), http.StatusUnauthorized)
+		return
+	}
+	defer datasource.Close()
+	db := datasource.GetDB()
+
+	userApply := models.UserApplies{
+		Id:           uuid.NewString(),
+		UserId:       userId,
+		JobVacancyId: jobId,
+	}
+
+	query := `INSERT INTO user_applies (id, job_vacancy_id, user_id) VALUES ($1, $2, $3)`
+	_, err = db.Exec(query, userApply.Id, userApply.JobVacancyId, userApply.UserId)
+	if err != nil {
+		http.Error(w, "execute query failled: "+err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 }

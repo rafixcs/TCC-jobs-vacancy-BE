@@ -10,3 +10,9 @@ type JobVacancy struct {
 	Title        string    `json:"title"`
 	CreationDate time.Time `json:"creation_date"`
 }
+
+type UserApplies struct {
+	Id           string
+	UserId       string `json:"user_id"`
+	JobVacancyId string `json:"job_vacancy_id"`
+}

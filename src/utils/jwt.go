@@ -42,3 +42,46 @@ func CreateUserJwtToken(userId, loginId string) (string, error) {
 	ss, err := token.SignedString([]byte(JWT_SECRET))
 	return ss, err
 }
+
+func GetUserIdFromToken(tokenHeader string) (string, error) {
+	token, err := ParseToken(tokenHeader)
+	if err != nil {
+		return "", fmt.Errorf("invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("invalid token claims")
+	}
+
+	userId, ok := claims["user_id"].(string)
+	if !ok {
+		return "", fmt.Errorf("token missing user field")
+	}
+
+	return userId, nil
+}
+
+func GetUserAuthIdsFromToken(tokenHeader string) (string, string, error) {
+	token, err := ParseToken(tokenHeader)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", "", fmt.Errorf("invalid token claims")
+	}
+
+	loginId, ok := claims["login_id"].(string)
+	if !ok {
+		return "", "", fmt.Errorf("token missing login field")
+	}
+
+	userId, ok := claims["user_id"].(string)
+	if !ok {
+		return "", "", fmt.Errorf("token missing user field")
+	}
+
+	return userId, loginId, nil
+}

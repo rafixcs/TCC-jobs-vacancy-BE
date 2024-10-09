@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/models"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/models"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repoauth"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repousers"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/users"
@@ -59,24 +58,9 @@ func (d *AuthDomain) UserAuth(name, password string) (string, error) {
 }
 
 func (d *AuthDomain) Logout(tokenHeader string) error {
-	token, err := utils.ParseToken(tokenHeader)
+	userId, loginId, err := utils.GetUserAuthIdsFromToken(tokenHeader)
 	if err != nil {
-		return fmt.Errorf("invalid token")
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return fmt.Errorf("invalid token claims")
-	}
-
-	loginId, ok := claims["login_id"].(string)
-	if !ok {
-		return fmt.Errorf("token missing login field")
-	}
-
-	userId, ok := claims["user_id"].(string)
-	if !ok {
-		return fmt.Errorf("token missing user field")
+		return err
 	}
 
 	validLogin, err := d.AuthRepo.ValidateLogin(loginId, userId)
