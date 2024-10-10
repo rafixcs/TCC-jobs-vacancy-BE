@@ -20,5 +20,6 @@ func (r *JobRouter) CreateRoutes() {
 	r.Router.HandleFunc("/api/job/apply", controller.RegisterUserApplyJobVacancy).Methods("POST")
 	r.Router.HandleFunc("/api/job/company", controller.GetCompanyJobVacancies).Methods("GET")
 	r.Router.HandleFunc("/api/job/user", controller.GetUserJobVacancies).Methods("GET")
+	r.Router.HandleFunc("/api/job/search", controller.SearchJobVacancies).Methods("GET")
 	r.Router.Use(middleware.ContentTypeApplicationJsonMiddleware)
 }

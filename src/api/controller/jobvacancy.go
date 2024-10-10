@@ -51,9 +51,9 @@ func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jobvacancyDomain := jobfactory.CreateJobVacancyDomain()
+	jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
 
-	err = jobvacancyDomain.CreateUserJobApply(userId, jobId)
+	err = jobVacancyDomain.CreateUserJobApply(userId, jobId)
 	if err != nil {
 		http.Error(w, "could not create user apply", http.StatusUnauthorized)
 		return
@@ -74,8 +74,8 @@ func GetCompanyJobVacancies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jobvacancyDomain := jobfactory.CreateJobVacancyDomain()
-	jobVacancies, err := jobvacancyDomain.GetCompanyJobVacancies(companyName)
+	jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
+	jobVacancies, err := jobVacancyDomain.GetCompanyJobVacancies(companyName)
 	if err != nil {
 		http.Error(w, "failed to get company job vacancies list", http.StatusBadRequest)
 		return
@@ -101,8 +101,8 @@ func GetUserJobVacancies(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jobvacancyDomain := jobfactory.CreateJobVacancyDomain()
-	jobApplies, err := jobvacancyDomain.GetUserJobApplies(userId)
+	jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
+	jobApplies, err := jobVacancyDomain.GetUserJobApplies(userId)
 	if err != nil {
 		http.Error(w, "failed to get user job applies list", http.StatusBadRequest)
 		return
@@ -113,4 +113,25 @@ func GetUserJobVacancies(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(&responseBody)
+}
+
+type SearchJobVacanciesResponse struct {
+	JobVacancies []jobvacancy.JobVacancy
+}
+
+func SearchJobVacancies(w http.ResponseWriter, r *http.Request) {
+
+	searchStatement := r.URL.Query().Get("value")
+	jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
+	jobVacancies, err := jobVacancyDomain.SearchJobVacancies(searchStatement)
+	if err != nil {
+		http.Error(w, "failed to search job vacancies", http.StatusBadRequest)
+		return
+	}
+
+	bodyResponse := SearchJobVacanciesResponse{
+		JobVacancies: jobVacancies,
+	}
+
+	json.NewEncoder(w).Encode(&bodyResponse)
 }

@@ -14,6 +14,7 @@ type IJobVacancyDomain interface {
 	CreateUserJobApply(userId, jobId string) error
 	GetCompanyJobVacancies(companyName string) ([]JobVacancy, error)
 	GetUserJobApplies(userId string) ([]JobVacancy, error)
+	SearchJobVacancies(searchStatement string) ([]JobVacancy, error)
 }
 
 type JobVacancyDomain struct {
@@ -88,6 +89,26 @@ func (d JobVacancyDomain) GetCompanyJobVacancies(companyName string) ([]JobVacan
 
 func (d JobVacancyDomain) GetUserJobApplies(userId string) ([]JobVacancy, error) {
 	jobVacanciesModel, err := d.JobVacancyRepo.GetUserJobApplies(userId)
+	if err != nil {
+		return []JobVacancy{}, err
+	}
+
+	var jobVacanciesInfo []JobVacancy
+
+	for _, job := range jobVacanciesModel {
+		info := JobVacancy{
+			Title:        job.Title,
+			Description:  job.Description,
+			CreationDate: job.CreationDate,
+		}
+		jobVacanciesInfo = append(jobVacanciesInfo, info)
+	}
+
+	return jobVacanciesInfo, nil
+}
+
+func (d JobVacancyDomain) SearchJobVacancies(searchStatement string) ([]JobVacancy, error) {
+	jobVacanciesModel, err := d.JobVacancyRepo.SearchJobVacancies(searchStatement)
 	if err != nil {
 		return []JobVacancy{}, err
 	}

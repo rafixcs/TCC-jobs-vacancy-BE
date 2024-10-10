@@ -9,7 +9,8 @@ services:
     ports:
       - "12345:12345"
     volumes:
-      - ./migration/initial-db.sql:/docker-entrypoint-initdb.d/docker-database-initial.sql
-      - ./migration/user-roles.sql:/docker-entrypoint-initdb.d/user-roles.sql
+      - ./migration/0-initial-db.sql:/docker-entrypoint-initdb.d/0-docker-database-initial.sql
+      - ./migration/1-user-roles.sql:/docker-entrypoint-initdb.d/1-user-roles.sql
+      - ./migration/2-search-vector-trigger.sql:/docker-entrypoint-initdb.d/2-search-vector-trigger.sql
     restart: always
     command: -p 12345
