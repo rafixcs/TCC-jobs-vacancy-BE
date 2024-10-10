@@ -12,9 +12,9 @@ import (
 type IJobVacancyDomain interface {
 	CreateJobVacancy(userId, companyName, description, title string) error
 	CreateUserJobApply(userId, jobId string) error
-	GetCompanyJobVacancies(companyName string) ([]JobVacancy, error)
-	GetUserJobApplies(userId string) ([]JobVacancy, error)
-	SearchJobVacancies(searchStatement string) ([]JobVacancy, error)
+	GetCompanyJobVacancies(companyName string) ([]JobVacancyInfo, error)
+	GetUserJobApplies(userId string) ([]JobVacancyInfo, error)
+	SearchJobVacancies(searchStatement string) ([]JobVacancyInfo, error)
 }
 
 type JobVacancyDomain struct {
@@ -61,68 +61,40 @@ func (d JobVacancyDomain) CreateUserJobApply(userId, jobId string) error {
 	return nil
 }
 
-type JobVacancy struct {
-	Title        string    `json:"title"`
-	Description  string    `json:"description"`
-	CreationDate time.Time `json:"creation_date"`
-}
-
-func (d JobVacancyDomain) GetCompanyJobVacancies(companyName string) ([]JobVacancy, error) {
+func (d JobVacancyDomain) GetCompanyJobVacancies(companyName string) ([]JobVacancyInfo, error) {
 	jobVacanciesModel, err := d.JobVacancyRepo.GetCompanyJobVacancies(companyName)
 	if err != nil {
-		return []JobVacancy{}, err
+		return []JobVacancyInfo{}, err
 	}
 
-	var jobVacanciesInfo []JobVacancy
-
-	for _, job := range jobVacanciesModel {
-		info := JobVacancy{
-			Title:        job.Title,
-			Description:  job.Description,
-			CreationDate: job.CreationDate,
-		}
-		jobVacanciesInfo = append(jobVacanciesInfo, info)
-	}
+	jobVacanciesInfo := JobVacancyInfo{}.TransformSliceModel(jobVacanciesModel)
 
 	return jobVacanciesInfo, nil
 }
 
-func (d JobVacancyDomain) GetUserJobApplies(userId string) ([]JobVacancy, error) {
+func (d JobVacancyDomain) GetUserJobApplies(userId string) ([]JobVacancyInfo, error) {
 	jobVacanciesModel, err := d.JobVacancyRepo.GetUserJobApplies(userId)
 	if err != nil {
-		return []JobVacancy{}, err
+		return []JobVacancyInfo{}, err
 	}
 
-	var jobVacanciesInfo []JobVacancy
-
-	for _, job := range jobVacanciesModel {
-		info := JobVacancy{
-			Title:        job.Title,
-			Description:  job.Description,
-			CreationDate: job.CreationDate,
-		}
-		jobVacanciesInfo = append(jobVacanciesInfo, info)
-	}
+	jobVacanciesInfo := JobVacancyInfo{}.TransformSliceModel(jobVacanciesModel)
 
 	return jobVacanciesInfo, nil
 }
 
-func (d JobVacancyDomain) SearchJobVacancies(searchStatement string) ([]JobVacancy, error) {
+func (d JobVacancyDomain) GetUsesAppliesToJobVacancy(jobId string) error {
+
+	return nil
+}
+
+func (d JobVacancyDomain) SearchJobVacancies(searchStatement string) ([]JobVacancyInfo, error) {
 	jobVacanciesModel, err := d.JobVacancyRepo.SearchJobVacancies(searchStatement)
 	if err != nil {
-		return []JobVacancy{}, err
+		return []JobVacancyInfo{}, err
 	}
 
-	var jobVacanciesInfo []JobVacancy
-
-	for _, job := range jobVacanciesModel {
-		info := JobVacancy{
-			Title:        job.Title,
-			Description:  job.Description,
-			CreationDate: job.CreationDate,
-		}
-		jobVacanciesInfo = append(jobVacanciesInfo, info)
-	}
+	jobVacanciesInfo := JobVacancyInfo{}.TransformSliceModel(jobVacanciesModel)
 
 	return jobVacanciesInfo, nil
 }

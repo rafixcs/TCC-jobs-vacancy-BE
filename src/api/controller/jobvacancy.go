@@ -63,8 +63,8 @@ func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 }
 
 type GetCompaniesJobVacanciesResponse struct {
-	CompanyName  string                  `json:"company"`
-	JobVacancies []jobvacancy.JobVacancy `json:"job_vacancies"`
+	CompanyName  string                      `json:"company"`
+	JobVacancies []jobvacancy.JobVacancyInfo `json:"job_vacancies"`
 }
 
 func GetCompanyJobVacancies(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +90,7 @@ func GetCompanyJobVacancies(w http.ResponseWriter, r *http.Request) {
 }
 
 type UserJobAppliesResponse struct {
-	JobApplies []jobvacancy.JobVacancy
+	JobApplies []jobvacancy.JobVacancyInfo
 }
 
 func GetUserJobVacancies(w http.ResponseWriter, r *http.Request) {
@@ -116,11 +116,10 @@ func GetUserJobVacancies(w http.ResponseWriter, r *http.Request) {
 }
 
 type SearchJobVacanciesResponse struct {
-	JobVacancies []jobvacancy.JobVacancy
+	JobVacancies []jobvacancy.JobVacancyInfo
 }
 
 func SearchJobVacancies(w http.ResponseWriter, r *http.Request) {
-
 	searchStatement := r.URL.Query().Get("value")
 	jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
 	jobVacancies, err := jobVacancyDomain.SearchJobVacancies(searchStatement)
@@ -134,4 +133,15 @@ func SearchJobVacancies(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(&bodyResponse)
+}
+
+func GetUsesAppliesToJobVacancy(w http.ResponseWriter, r *http.Request) {
+	jobId := r.URL.Query().Get("job_id")
+	if jobId == "" {
+		http.Error(w, "missing job_id", http.StatusUnauthorized)
+		return
+	}
+
+	//jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
+	//jobVacancyDomain.GetCompanyJobVacancies()
 }

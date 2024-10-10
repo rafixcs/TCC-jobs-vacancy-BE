@@ -89,7 +89,7 @@ func (r *JobVacancyRepository) GetUserJobApplies(userId string) ([]models.JobVac
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := `SELECT id, company_id, user_id, description, title, creation_date FROM job_vacancies WHERE user_id = $1`
+	query := `SELECT jv.id, jv.company_id, jv.user_id, jv.description, jv.title, jv.creation_date FROM job_vacancies AS jv INNER JOIN user_applies AS ua ON ua.job_vacancy_id=jv.id WHERE ua.user_id = $1`
 	rows, err := db.Query(query, userId)
 	if err != nil {
 		return []models.JobVacancy{}, err
