@@ -65,6 +65,5 @@ func GetCompanies(w http.ResponseWriter, r *http.Request) {
 		companiesInfo = append(companiesInfo, company)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&companiesInfo)
 }

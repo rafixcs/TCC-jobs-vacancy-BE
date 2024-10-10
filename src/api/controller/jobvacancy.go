@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/jobfactory"
+	"github.com/rafixcs/tcc-job-vacancy/src/domain/jobvacancy"
 	"github.com/rafixcs/tcc-job-vacancy/src/utils"
 )
 
@@ -59,4 +60,57 @@ func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+type GetCompaniesJobVacanciesResponse struct {
+	CompanyName  string                  `json:"company"`
+	JobVacancies []jobvacancy.JobVacancy `json:"job_vacancies"`
+}
+
+func GetCompanyJobVacancies(w http.ResponseWriter, r *http.Request) {
+	companyName := r.URL.Query().Get("company")
+	if companyName == "" {
+		http.Error(w, "missing company name", http.StatusBadRequest)
+		return
+	}
+
+	jobvacancyDomain := jobfactory.CreateJobVacancyDomain()
+	jobVacancies, err := jobvacancyDomain.GetCompanyJobVacancies(companyName)
+	if err != nil {
+		http.Error(w, "failed to get company job vacancies list", http.StatusBadRequest)
+		return
+	}
+
+	responseBody := GetCompaniesJobVacanciesResponse{
+		CompanyName:  companyName,
+		JobVacancies: jobVacancies,
+	}
+
+	json.NewEncoder(w).Encode(&responseBody)
+}
+
+type UserJobAppliesResponse struct {
+	JobApplies []jobvacancy.JobVacancy
+}
+
+func GetUserJobVacancies(w http.ResponseWriter, r *http.Request) {
+	tokenHeader := r.Header.Get("Authorization")
+	userId, err := utils.GetUserIdFromToken(tokenHeader)
+	if err != nil {
+		http.Error(w, "failed to parse Authorization token", http.StatusUnauthorized)
+		return
+	}
+
+	jobvacancyDomain := jobfactory.CreateJobVacancyDomain()
+	jobApplies, err := jobvacancyDomain.GetUserJobApplies(userId)
+	if err != nil {
+		http.Error(w, "failed to get user job applies list", http.StatusBadRequest)
+		return
+	}
+
+	responseBody := UserJobAppliesResponse{
+		JobApplies: jobApplies,
+	}
+
+	json.NewEncoder(w).Encode(&responseBody)
 }
