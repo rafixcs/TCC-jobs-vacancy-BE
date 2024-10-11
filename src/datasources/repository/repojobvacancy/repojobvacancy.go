@@ -10,6 +10,7 @@ type IJobVacancyRepository interface {
 	CreateUserJobApply(userApply models.UserApplies) error
 	GetCompanyJobVacancies(companyName string) ([]models.JobVacancy, error)
 	GetUserJobApplies(userId string) ([]models.JobVacancy, error)
+	GetJobVacancyApplies(jobId string) ([]models.UserModels, error)
 	SearchJobVacancies(searchStatement string) ([]models.JobVacancy, error)
 }
 
@@ -26,9 +27,9 @@ func (r *JobVacancyRepository) CreateJobVacancy(jobVacancy models.JobVacancy) er
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := "INSERT INTO job_vacancies(id, user_id, company_id, description, title, creation_date) VALUES ($1, $2, $3, $4, $5, $6)"
+	query := "INSERT INTO job_vacancies(id, user_id, company_id, description, title, location, creation_date) VALUES ($1, $2, $3, $4, $5, $6, $7)"
 
-	_, err = db.Exec(query, jobVacancy.Id, jobVacancy.UserId, jobVacancy.CompanyId, jobVacancy.Description, jobVacancy.Title, jobVacancy.CreationDate)
+	_, err = db.Exec(query, jobVacancy.Id, jobVacancy.UserId, jobVacancy.CompanyId, jobVacancy.Description, jobVacancy.Title, jobVacancy.Location, jobVacancy.CreationDate)
 	if err != nil {
 		return err
 	}
@@ -78,6 +79,31 @@ func (r *JobVacancyRepository) GetCompanyJobVacancies(companyName string) ([]mod
 
 	return jobVacancies, nil
 
+}
+
+func (r *JobVacancyRepository) GetJobVacancyApplies(jobId string) ([]models.UserModels, error) {
+	r.Datasource.Open()
+	err := r.Datasource.GetError()
+	if err != nil {
+		return []models.UserModels{}, err
+	}
+	defer r.Datasource.Close()
+	db := r.Datasource.GetDB()
+
+	query := `SELECT users.id, users.name, users.password, users.role_id FROM users JOIN user_applies AS ua ON ua.user_id = users.id WHERE job_vacancy_id = $1`
+	rows, err := db.Query(query, jobId)
+	if err != nil {
+		return []models.UserModels{}, err
+	}
+
+	var users []models.UserModels
+	for rows.Next() {
+		var user models.UserModels
+		rows.Scan(&user.Id, &user.Name, &user.Password, &user.RoleId)
+		users = append(users, user)
+	}
+
+	return users, nil
 }
 
 func (r *JobVacancyRepository) GetUserJobApplies(userId string) ([]models.JobVacancy, error) {

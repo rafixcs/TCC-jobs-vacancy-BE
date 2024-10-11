@@ -10,10 +10,11 @@ import (
 )
 
 type IJobVacancyDomain interface {
-	CreateJobVacancy(userId, companyName, description, title string) error
+	CreateJobVacancy(userId, companyName, description, title, location string) error
 	CreateUserJobApply(userId, jobId string) error
 	GetCompanyJobVacancies(companyName string) ([]JobVacancyInfo, error)
 	GetUserJobApplies(userId string) ([]JobVacancyInfo, error)
+	GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancyApplies, error)
 	SearchJobVacancies(searchStatement string) ([]JobVacancyInfo, error)
 }
 
@@ -22,7 +23,7 @@ type JobVacancyDomain struct {
 	CompanyRepo    repocompany.ICompanyRepository
 }
 
-func (d JobVacancyDomain) CreateJobVacancy(userId, companyName, description, title string) error {
+func (d JobVacancyDomain) CreateJobVacancy(userId, companyName, description, title, location string) error {
 	company, err := d.CompanyRepo.FindCompanyByName(companyName)
 	if err != nil {
 		return err
@@ -34,6 +35,7 @@ func (d JobVacancyDomain) CreateJobVacancy(userId, companyName, description, tit
 		CompanyId:    company.Id,
 		Title:        title,
 		Description:  description,
+		Location:     location,
 		CreationDate: time.Now(),
 	}
 
@@ -83,9 +85,29 @@ func (d JobVacancyDomain) GetUserJobApplies(userId string) ([]JobVacancyInfo, er
 	return jobVacanciesInfo, nil
 }
 
-func (d JobVacancyDomain) GetUsesAppliesToJobVacancy(jobId string) error {
+type JobVacancyApplies struct {
+	UserId   string
+	UserName string
+}
 
-	return nil
+func (d JobVacancyDomain) GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancyApplies, error) {
+
+	usersModels, err := d.JobVacancyRepo.GetJobVacancyApplies(jobId)
+	if err != nil {
+		return []JobVacancyApplies{}, err
+	}
+
+	var usersApplied []JobVacancyApplies
+	for _, model := range usersModels {
+		userApply := JobVacancyApplies{
+			UserId:   model.Id,
+			UserName: model.Name,
+		}
+
+		usersApplied = append(usersApplied, userApply)
+	}
+
+	return usersApplied, nil
 }
 
 func (d JobVacancyDomain) SearchJobVacancies(searchStatement string) ([]JobVacancyInfo, error) {

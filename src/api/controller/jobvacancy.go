@@ -13,6 +13,7 @@ type CreateJobVacancyRequest struct {
 	CompanyName string `json:"company"`
 	Description string `json:"description"`
 	Title       string `json:"title"`
+	Location    string `json:"location"`
 }
 
 func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +29,7 @@ func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 
 	jobvacancyDomain := jobfactory.CreateJobVacancyDomain()
 
-	err = jobvacancyDomain.CreateJobVacancy(userId, requestContent.CompanyName, requestContent.Description, requestContent.Title)
+	err = jobvacancyDomain.CreateJobVacancy(userId, requestContent.CompanyName, requestContent.Description, requestContent.Title, requestContent.Location)
 	if err != nil {
 		http.Error(w, "failed to create job vacancy", http.StatusBadRequest)
 		return
@@ -135,13 +136,27 @@ func SearchJobVacancies(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&bodyResponse)
 }
 
-func GetUsesAppliesToJobVacancy(w http.ResponseWriter, r *http.Request) {
+type GetUsersAppliesToJobVacancyResponse struct {
+	UsersApplies []jobvacancy.JobVacancyApplies
+}
+
+func GetUsersAppliesToJobVacancy(w http.ResponseWriter, r *http.Request) {
 	jobId := r.URL.Query().Get("job_id")
 	if jobId == "" {
 		http.Error(w, "missing job_id", http.StatusUnauthorized)
 		return
 	}
 
-	//jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
-	//jobVacancyDomain.GetCompanyJobVacancies()
+	jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
+	users, err := jobVacancyDomain.GetUsesAppliesToJobVacancy(jobId)
+	if err != nil {
+		http.Error(w, "failed to get job applies", http.StatusBadRequest)
+		return
+	}
+
+	responseBody := GetUsersAppliesToJobVacancyResponse{
+		UsersApplies: users,
+	}
+
+	json.NewEncoder(w).Encode(&responseBody)
 }
