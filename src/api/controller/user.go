@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/userfactory"
@@ -17,6 +18,8 @@ type CreateUserRequest struct {
 
 // Add factory
 func CreateUser(w http.ResponseWriter, r *http.Request) {
+	log.Println("Request received: ", r.Body)
+
 	var userRequest CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&userRequest)
 	if err != nil {
