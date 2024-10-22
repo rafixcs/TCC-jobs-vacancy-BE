@@ -2,6 +2,7 @@ package jobvacancy
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,11 +12,12 @@ import (
 )
 
 type IJobVacancyDomain interface {
-	CreateJobVacancy(userId, companyName, description, title, location string, requirements, responsabilities []string) error
+	CreateJobVacancy(userId, companyName, description, title, location, salary string, requirements, responsabilities []string) error
 	CreateUserJobApply(userId, jobId string) error
 	GetCompanyJobVacancies(companyName string) ([]JobVacancyInfo, error)
 	GetUserJobApplies(userId string) ([]JobVacancyInfo, error)
 	GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancyApplies, error)
+	GetJobVacancyDetails(jobId string) (JobVacancyDetails, error)
 	SearchJobVacancies(searchStatement string) ([]JobVacancyInfo, error)
 }
 
@@ -25,7 +27,7 @@ type JobVacancyDomain struct {
 }
 
 func (d JobVacancyDomain) CreateJobVacancy(
-	userId, companyName, description, title, location string,
+	userId, companyName, description, title, location, salary string,
 	requirements, responsabilities []string) error {
 
 	company, err := d.CompanyRepo.FindCompanyByName(companyName)
@@ -53,8 +55,9 @@ func (d JobVacancyDomain) CreateJobVacancy(
 		Description:      description,
 		Location:         location,
 		CreationDate:     time.Now(),
-		Responsabilities: responsabilitiesData,
+		Responsibilities: responsabilitiesData,
 		Requirements:     requirementsData,
+		Salary:           salary,
 	}
 
 	err = d.JobVacancyRepo.CreateJobVacancy(jobVacancy)
@@ -65,8 +68,50 @@ func (d JobVacancyDomain) CreateJobVacancy(
 	return nil
 }
 
-func (d JobVacancyDomain) GetJobVacancyDetails(jobId string) error {
-	return nil
+type JobVacancyDetails struct {
+	Id               string
+	Description      string    `json:"description"`
+	Title            string    `json:"title"`
+	Location         string    `json:"location"`
+	CreationDate     time.Time `json:"creation_date"`
+	Salary           string    `json:"salary"`
+	Requirements     []string  `json:"requirements"`
+	Responsibilities []string  `json:"responsibilities"`
+}
+
+func (d JobVacancyDomain) GetJobVacancyDetails(jobId string) (JobVacancyDetails, error) {
+	jobVacancyModel, err := d.JobVacancyRepo.GetJobVacancyDetails(jobId)
+	if err != nil {
+		return JobVacancyDetails{}, err
+	}
+
+	if jobVacancyModel == (models.JobVacancy{}) {
+		return JobVacancyDetails{}, fmt.Errorf("job vacancy not found")
+	}
+
+	var requirementslist []string
+	err = json.Unmarshal([]byte(jobVacancyModel.Requirements), &requirementslist)
+	if err != nil {
+		return JobVacancyDetails{}, err
+	}
+
+	var responsibilitieslist []string
+	err = json.Unmarshal([]byte(jobVacancyModel.Requirements), &responsibilitieslist)
+	if err != nil {
+		return JobVacancyDetails{}, err
+	}
+
+	jobDetail := JobVacancyDetails{
+		Id:               jobVacancyModel.Id,
+		Description:      jobVacancyModel.Description,
+		Title:            jobVacancyModel.Title,
+		CreationDate:     jobVacancyModel.CreationDate,
+		Salary:           jobVacancyModel.Salary,
+		Requirements:     requirementslist,
+		Responsibilities: responsibilitieslist,
+	}
+
+	return jobDetail, nil
 }
 
 func (d JobVacancyDomain) CreateUserJobApply(userId, jobId string) error {

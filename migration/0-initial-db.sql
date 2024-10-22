@@ -30,7 +30,7 @@ CREATE TABLE "job_vacancies"(
     "location" VARCHAR(255) NOT NULL,
     "salary" VARCHAR(255) NOT NULL,
     "requirements" TEXT NOT NULL,
-    "responsabilities" TEXT NOT NULL
+    "responsibilities" TEXT NOT NULL
 );
 ALTER TABLE
     "job_vacancies" ADD PRIMARY KEY("id");

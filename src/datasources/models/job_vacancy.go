@@ -12,7 +12,7 @@ type JobVacancy struct {
 	CreationDate     time.Time `json:"creation_date"`
 	Salary           string    `json:"salary"`
 	Requirements     string    `json:"requirements"`
-	Responsabilities string    `json:"responsabilities"`
+	Responsibilities string    `json:"responsibilities"`
 }
 
 type UserApplies struct {

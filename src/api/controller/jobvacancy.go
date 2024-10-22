@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -16,6 +15,7 @@ type CreateJobVacancyRequest struct {
 	Description      string   `json:"description"`
 	Title            string   `json:"title"`
 	Location         string   `json:"location"`
+	Salary           string   `json:"salary"`
 	Requirements     []string `json:"requirements"`
 	Responsabilities []string `json:"responsabilities"`
 }
@@ -39,6 +39,7 @@ func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 		requestContent.Description,
 		requestContent.Title,
 		requestContent.Location,
+		requestContent.Salary,
 		requestContent.Requirements,
 		requestContent.Responsabilities,
 	)
@@ -53,7 +54,15 @@ func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 func GetJobVacancyDetails(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	log.Println(id)
+
+	jobdomain := jobfactory.CreateJobVacancyDomain()
+	jobVacancy, err := jobdomain.GetJobVacancyDetails(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(&jobVacancy)
 }
 
 func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
