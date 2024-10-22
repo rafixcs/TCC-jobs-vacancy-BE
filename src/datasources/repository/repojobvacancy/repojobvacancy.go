@@ -11,7 +11,7 @@ type IJobVacancyRepository interface {
 	GetCompanyJobVacancies(companyName string) ([]models.JobVacancy, error)
 	GetUserJobApplies(userId string) ([]models.JobVacancy, error)
 	GetJobVacancyApplies(jobId string) ([]models.UserModels, error)
-	SearchJobVacancies(searchStatement string) ([]models.JobVacancy, error)
+	SearchJobVacancies(searchStatement string) ([]models.JobVacancy, []string, error)
 }
 
 type JobVacancyRepository struct {
@@ -27,9 +27,21 @@ func (r *JobVacancyRepository) CreateJobVacancy(jobVacancy models.JobVacancy) er
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := "INSERT INTO job_vacancies(id, user_id, company_id, description, title, location, creation_date) VALUES ($1, $2, $3, $4, $5, $6, $7)"
+	query := "INSERT INTO job_vacancies(id, user_id, company_id, description, title, location, creation_date, responsabilities, requirements) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
 
-	_, err = db.Exec(query, jobVacancy.Id, jobVacancy.UserId, jobVacancy.CompanyId, jobVacancy.Description, jobVacancy.Title, jobVacancy.Location, jobVacancy.CreationDate)
+	_, err = db.Exec(
+		query,
+		jobVacancy.Id,
+		jobVacancy.UserId,
+		jobVacancy.CompanyId,
+		jobVacancy.Description,
+		jobVacancy.Title,
+		jobVacancy.Location,
+		jobVacancy.CreationDate,
+		jobVacancy.Responsabilities,
+		jobVacancy.Requirements,
+	)
+
 	if err != nil {
 		return err
 	}
@@ -131,27 +143,41 @@ func (r *JobVacancyRepository) GetUserJobApplies(userId string) ([]models.JobVac
 	return jobVacancies, nil
 }
 
-func (r *JobVacancyRepository) SearchJobVacancies(searchStatement string) ([]models.JobVacancy, error) {
+func (r *JobVacancyRepository) SearchJobVacancies(searchStatement string) ([]models.JobVacancy, []string, error) {
 	r.Datasource.Open()
 	err := r.Datasource.GetError()
 	if err != nil {
-		return []models.JobVacancy{}, err
+		return []models.JobVacancy{}, []string{}, err
 	}
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := `SELECT id, company_id, user_id, description, title, creation_date FROM job_vacancies WHERE search_vector @@ to_tsquery('english', $1)`
+	query := `SELECT 
+				jv.id, jv.company_id, jv.user_id, jv.description, jv.title, jv.creation_date, cp.name
+			FROM job_vacancies AS jv INNER JOIN companies AS cp ON cp.id=jv.company_id
+			WHERE search_vector @@ to_tsquery('english', $1)`
 	rows, err := db.Query(query, searchStatement)
 	if err != nil {
-		return []models.JobVacancy{}, err
+		return []models.JobVacancy{}, []string{}, err
 	}
 
 	var jobVacancies []models.JobVacancy
+	var companiesNames []string
 	for rows.Next() {
 		var jobVacancy models.JobVacancy
-		rows.Scan(&jobVacancy.Id, &jobVacancy.CompanyId, &jobVacancy.UserId, &jobVacancy.Description, &jobVacancy.Title, &jobVacancy.CreationDate)
+		var companyName string
+		rows.Scan(
+			&jobVacancy.Id,
+			&jobVacancy.CompanyId,
+			&jobVacancy.UserId,
+			&jobVacancy.Description,
+			&jobVacancy.Title,
+			&jobVacancy.CreationDate,
+			&companyName,
+		)
 		jobVacancies = append(jobVacancies, jobVacancy)
+		companiesNames = append(companiesNames, companyName)
 	}
 
-	return jobVacancies, nil
+	return jobVacancies, companiesNames, nil
 }

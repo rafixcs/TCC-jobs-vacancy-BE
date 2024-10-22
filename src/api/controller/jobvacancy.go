@@ -2,18 +2,22 @@ package controller
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/jobfactory"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/jobvacancy"
 	"github.com/rafixcs/tcc-job-vacancy/src/utils"
 )
 
 type CreateJobVacancyRequest struct {
-	CompanyName string `json:"company"`
-	Description string `json:"description"`
-	Title       string `json:"title"`
-	Location    string `json:"location"`
+	CompanyName      string   `json:"company"`
+	Description      string   `json:"description"`
+	Title            string   `json:"title"`
+	Location         string   `json:"location"`
+	Requirements     []string `json:"requirements"`
+	Responsabilities []string `json:"responsabilities"`
 }
 
 func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
@@ -29,13 +33,27 @@ func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 
 	jobvacancyDomain := jobfactory.CreateJobVacancyDomain()
 
-	err = jobvacancyDomain.CreateJobVacancy(userId, requestContent.CompanyName, requestContent.Description, requestContent.Title, requestContent.Location)
+	err = jobvacancyDomain.CreateJobVacancy(
+		userId,
+		requestContent.CompanyName,
+		requestContent.Description,
+		requestContent.Title,
+		requestContent.Location,
+		requestContent.Requirements,
+		requestContent.Responsabilities,
+	)
 	if err != nil {
 		http.Error(w, "failed to create job vacancy", http.StatusBadRequest)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func GetJobVacancyDetails(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	log.Println(id)
 }
 
 func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {

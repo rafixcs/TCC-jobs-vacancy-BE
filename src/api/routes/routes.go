@@ -17,6 +17,7 @@ func (r *JobRouter) CreateRoutes() {
 	r.Router.HandleFunc("/api/v1/company", controller.CreateCompany).Methods("POST")
 	r.Router.HandleFunc("/api/v1/companies", controller.GetCompanies).Methods("GET")
 	r.Router.HandleFunc("/api/v1/job", controller.CreateJobVacancy).Methods("POST")
+	r.Router.HandleFunc("/api/v1/job/{id}", controller.GetJobVacancyDetails).Methods("GET")
 	r.Router.HandleFunc("/api/v1/job/apply", controller.RegisterUserApplyJobVacancy).Methods("POST")
 	r.Router.HandleFunc("/api/v1/job/company", controller.GetCompanyJobVacancies).Methods("GET")
 	r.Router.HandleFunc("/api/v1/job/user", controller.GetUserJobVacancies).Methods("GET")

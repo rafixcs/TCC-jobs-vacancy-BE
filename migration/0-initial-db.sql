@@ -27,7 +27,10 @@ CREATE TABLE "job_vacancies"(
     "description" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "creation_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    "location" VARCHAR(255) NOT NULL
+    "location" VARCHAR(255) NOT NULL,
+    "salary" VARCHAR(255) NOT NULL,
+    "requirements" TEXT NOT NULL,
+    "responsabilities" TEXT NOT NULL
 );
 ALTER TABLE
     "job_vacancies" ADD PRIMARY KEY("id");
