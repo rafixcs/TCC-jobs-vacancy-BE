@@ -17,7 +17,7 @@ type CreateJobVacancyRequest struct {
 	Location         string   `json:"location"`
 	Salary           string   `json:"salary"`
 	Requirements     []string `json:"requirements"`
-	Responsabilities []string `json:"responsabilities"`
+	Responsibilities []string `json:"responsibilities"`
 }
 
 func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +41,7 @@ func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 		requestContent.Location,
 		requestContent.Salary,
 		requestContent.Requirements,
-		requestContent.Responsabilities,
+		requestContent.Responsibilities,
 	)
 	if err != nil {
 		http.Error(w, "failed to create job vacancy", http.StatusBadRequest)

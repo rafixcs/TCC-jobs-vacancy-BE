@@ -28,8 +28,8 @@ func (r *CompanyRepository) CreateCompany(company models.CompanyModels) error {
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := `INSERT INTO companies(id, name, creation_date) VALUES ($1, $2, $3)`
-	_, err = db.Exec(query, company.Id, company.Name, company.CreationDate)
+	query := `INSERT INTO companies(id, name, description, creation_date) VALUES ($1, $2, $3, $4)`
+	_, err = db.Exec(query, company.Id, company.Name, company.Description, company.CreationDate)
 	if err != nil {
 		return err
 	}
@@ -113,7 +113,7 @@ func (r *CompanyRepository) FindAllCompanies() ([]models.CompanyModels, error) {
 
 	var companies []models.CompanyModels
 
-	query := `SELECT id, name, creation_date FROM companies`
+	query := `SELECT id, name, description, creation_date FROM companies`
 	rows, err := db.Query(query)
 	if err != nil {
 		return []models.CompanyModels{}, err
@@ -121,7 +121,7 @@ func (r *CompanyRepository) FindAllCompanies() ([]models.CompanyModels, error) {
 
 	for rows.Next() {
 		var companyModel models.CompanyModels
-		err = rows.Scan(&companyModel.Id, &companyModel.Name, &companyModel.CreationDate)
+		err = rows.Scan(&companyModel.Id, &companyModel.Name, &companyModel.Description, &companyModel.CreationDate)
 		if err != nil {
 			log.Println(err)
 		}

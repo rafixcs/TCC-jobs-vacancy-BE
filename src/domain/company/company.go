@@ -10,18 +10,19 @@ import (
 )
 
 type ICompanyDomain interface {
-	CreateCompany(name string) error
-	CompaniesList() ([]models.CompanyModels, error)
+	CreateCompany(name, description string) error
+	CompaniesList() ([]CompanyInfo, error)
 }
 
 type CompanyDomain struct {
 	CompanyRepo repocompany.ICompanyRepository
 }
 
-func (d *CompanyDomain) CreateCompany(name string) error {
+func (d *CompanyDomain) CreateCompany(name, description string) error {
 	companyModel := models.CompanyModels{
 		Id:           uuid.NewString(),
 		Name:         name,
+		Description:  description,
 		CreationDate: time.Now(),
 	}
 
@@ -35,10 +36,37 @@ func (d *CompanyDomain) CreateCompany(name string) error {
 	}
 
 	err = d.CompanyRepo.CreateCompany(companyModel)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (d *CompanyDomain) CompaniesList() ([]models.CompanyModels, error) {
-	return d.CompanyRepo.FindAllCompanies()
+type CompanyInfo struct {
+	Id           string    `json:"id"`
+	Name         string    `json:"name"`
+	CreationDate time.Time `json:"creation_date"`
+	Description  string    `json:"description"`
+}
+
+func (d *CompanyDomain) CompaniesList() ([]CompanyInfo, error) {
+	companiesModels, err := d.CompanyRepo.FindAllCompanies()
+	if err != nil {
+		return []CompanyInfo{}, err
+	}
+
+	var companiesInfo []CompanyInfo
+	for _, companyModel := range companiesModels {
+		company := CompanyInfo{
+			Id:           companyModel.Id,
+			Name:         companyModel.Name,
+			CreationDate: companyModel.CreationDate,
+			Description:  companyModel.Description,
+		}
+
+		companiesInfo = append(companiesInfo, company)
+	}
+
+	return companiesInfo, nil
 }

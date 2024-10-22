@@ -77,10 +77,11 @@ type JobVacancyDetails struct {
 	Salary           string    `json:"salary"`
 	Requirements     []string  `json:"requirements"`
 	Responsibilities []string  `json:"responsibilities"`
+	Company          string    `json:"company"`
 }
 
 func (d JobVacancyDomain) GetJobVacancyDetails(jobId string) (JobVacancyDetails, error) {
-	jobVacancyModel, err := d.JobVacancyRepo.GetJobVacancyDetails(jobId)
+	jobVacancyModel, companyName, err := d.JobVacancyRepo.GetJobVacancyDetails(jobId)
 	if err != nil {
 		return JobVacancyDetails{}, err
 	}
@@ -96,7 +97,7 @@ func (d JobVacancyDomain) GetJobVacancyDetails(jobId string) (JobVacancyDetails,
 	}
 
 	var responsibilitieslist []string
-	err = json.Unmarshal([]byte(jobVacancyModel.Requirements), &responsibilitieslist)
+	err = json.Unmarshal([]byte(jobVacancyModel.Responsibilities), &responsibilitieslist)
 	if err != nil {
 		return JobVacancyDetails{}, err
 	}
@@ -109,6 +110,8 @@ func (d JobVacancyDomain) GetJobVacancyDetails(jobId string) (JobVacancyDetails,
 		Salary:           jobVacancyModel.Salary,
 		Requirements:     requirementslist,
 		Responsibilities: responsibilitieslist,
+		Company:          companyName,
+		Location:         jobVacancyModel.Location,
 	}
 
 	return jobDetail, nil
@@ -178,6 +181,7 @@ func (d JobVacancyDomain) GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancy
 }
 
 func (d JobVacancyDomain) SearchJobVacancies(searchStatement string) ([]JobVacancyInfo, error) {
+
 	jobVacanciesModel, companiesNames, err := d.JobVacancyRepo.SearchJobVacancies(searchStatement)
 	if err != nil {
 		return []JobVacancyInfo{}, err

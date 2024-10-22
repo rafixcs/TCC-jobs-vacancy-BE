@@ -7,21 +7,23 @@ import (
 )
 
 type JobVacancyInfo struct {
-	JobId        string    `json:"job_id"`
+	Id           string    `json:"id"`
 	Title        string    `json:"title"`
 	Description  string    `json:"description"`
 	CreationDate time.Time `json:"creation_date"`
 	Company      string    `json:"company"`
+	Location     string    `json:"location"`
 }
 
 func (j JobVacancyInfo) TrasformFromModel(model models.JobVacancy, companyName string) JobVacancyInfo {
 
 	info := JobVacancyInfo{
-		JobId:        model.Id,
+		Id:           model.Id,
 		Title:        model.Title,
 		Description:  model.Description,
 		CreationDate: model.CreationDate,
 		Company:      companyName,
+		Location:     model.Location,
 	}
 
 	return info

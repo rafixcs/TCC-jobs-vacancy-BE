@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/companyfactory"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
@@ -12,7 +11,8 @@ import (
 )
 
 type CreateCompanyRequest struct {
-	Name string `json:"name"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 func CreateCompany(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +28,7 @@ func CreateCompany(w http.ResponseWriter, r *http.Request) {
 	companyRepo := repocompany.CompanyRepository{Datasource: &datasource}
 	companyDomain := company.CompanyDomain{CompanyRepo: &companyRepo}
 
-	err = companyDomain.CreateCompany(createCompanyRequest.Name)
+	err = companyDomain.CreateCompany(createCompanyRequest.Name, createCompanyRequest.Description)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
@@ -37,32 +37,17 @@ func CreateCompany(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-type CompanyInfo struct {
-	Name         string
-	CreationDate time.Time
-}
-
 type GetCompaniesResponse struct {
-	Companies []CompanyInfo
+	Companies []company.CompanyInfo
 }
 
 func GetCompanies(w http.ResponseWriter, r *http.Request) {
 	companyDomain := companyfactory.CreateCompanyDomain()
 
-	companiesModels, err := companyDomain.CompaniesList()
+	companiesInfo, err := companyDomain.CompaniesList()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
-	}
-
-	var companiesInfo []CompanyInfo
-	for _, companyModel := range companiesModels {
-		company := CompanyInfo{
-			Name:         companyModel.Name,
-			CreationDate: companyModel.CreationDate,
-		}
-
-		companiesInfo = append(companiesInfo, company)
 	}
 
 	json.NewEncoder(w).Encode(&companiesInfo)

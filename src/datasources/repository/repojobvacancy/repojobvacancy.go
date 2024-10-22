@@ -1,6 +1,8 @@
 package repojobvacancy
 
 import (
+	"database/sql"
+
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/models"
 )
@@ -11,7 +13,7 @@ type IJobVacancyRepository interface {
 	GetCompanyJobVacancies(companyName string) ([]models.JobVacancy, error)
 	GetUserJobApplies(userId string) ([]models.JobVacancy, error)
 	GetJobVacancyApplies(jobId string) ([]models.UserModels, error)
-	GetJobVacancyDetails(jobId string) (models.JobVacancy, error)
+	GetJobVacancyDetails(jobId string) (models.JobVacancy, string, error)
 	SearchJobVacancies(searchStatement string) ([]models.JobVacancy, []string, error)
 }
 
@@ -28,7 +30,11 @@ func (r *JobVacancyRepository) CreateJobVacancy(jobVacancy models.JobVacancy) er
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := "INSERT INTO job_vacancies(id, user_id, company_id, description, title, location, creation_date, responsibilities, requirements, salary) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
+	query := `INSERT INTO job_vacancies(
+			id, user_id, company_id, description,
+			title, location, creation_date, responsibilities,
+			requirements, salary
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 
 	_, err = db.Exec(
 		query,
@@ -78,7 +84,7 @@ func (r *JobVacancyRepository) GetCompanyJobVacancies(companyName string) ([]mod
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := `SELECT id, company_id, user_id, description, title, creation_date FROM job_vacancies WHERE company_id IN (SELECT id FROM companies WHERE name = $1)`
+	query := `SELECT id, company_id, user_id, description, title, creation_date, location FROM job_vacancies WHERE company_id IN (SELECT id FROM companies WHERE name = $1)`
 	rows, err := db.Query(query, companyName)
 	if err != nil {
 		return []models.JobVacancy{}, err
@@ -87,7 +93,7 @@ func (r *JobVacancyRepository) GetCompanyJobVacancies(companyName string) ([]mod
 	var jobVacancies []models.JobVacancy
 	for rows.Next() {
 		var jobVacancy models.JobVacancy
-		rows.Scan(&jobVacancy.Id, &jobVacancy.CompanyId, &jobVacancy.UserId, &jobVacancy.Description, &jobVacancy.Title, &jobVacancy.CreationDate)
+		rows.Scan(&jobVacancy.Id, &jobVacancy.CompanyId, &jobVacancy.UserId, &jobVacancy.Description, &jobVacancy.Title, &jobVacancy.CreationDate, &jobVacancy.Location)
 		jobVacancies = append(jobVacancies, jobVacancy)
 	}
 
@@ -145,26 +151,30 @@ func (r *JobVacancyRepository) GetUserJobApplies(userId string) ([]models.JobVac
 	return jobVacancies, nil
 }
 
-func (r *JobVacancyRepository) GetJobVacancyDetails(jobId string) (models.JobVacancy, error) {
+func (r *JobVacancyRepository) GetJobVacancyDetails(jobId string) (models.JobVacancy, string, error) {
 	r.Datasource.Open()
 	err := r.Datasource.GetError()
 	if err != nil {
-		return models.JobVacancy{}, err
+		return models.JobVacancy{}, "", err
 	}
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
 	query := `
 		SELECT 
-			id, user_id, company_id, description, title, creation_date, location, salary, requirements, responsibilities
-		FROM job_vacancies WHERE id = $1
+			jv.id, jv.user_id, jv.company_id, jv.description,
+			jv.title, jv.creation_date, jv.location, jv.salary,
+			jv.requirements, jv.responsibilities,
+			cp.name
+		FROM job_vacancies AS jv INNER JOIN companies AS cp ON cp.id=jv.company_id WHERE jv.id = $1
 		`
 	rows, err := db.Query(query, jobId)
 	if err != nil {
-		return models.JobVacancy{}, err
+		return models.JobVacancy{}, "", err
 	}
 
 	var jobVacancy models.JobVacancy
+	var companyName string
 	if rows.Next() {
 		rows.Scan(
 			&jobVacancy.Id,
@@ -177,10 +187,11 @@ func (r *JobVacancyRepository) GetJobVacancyDetails(jobId string) (models.JobVac
 			&jobVacancy.Salary,
 			&jobVacancy.Requirements,
 			&jobVacancy.Responsibilities,
+			&companyName,
 		)
 	}
 
-	return jobVacancy, nil
+	return jobVacancy, companyName, nil
 }
 
 func (r *JobVacancyRepository) SearchJobVacancies(searchStatement string) ([]models.JobVacancy, []string, error) {
@@ -194,9 +205,16 @@ func (r *JobVacancyRepository) SearchJobVacancies(searchStatement string) ([]mod
 
 	query := `SELECT 
 				jv.id, jv.company_id, jv.user_id, jv.description, jv.title, jv.creation_date, cp.name
-			FROM job_vacancies AS jv INNER JOIN companies AS cp ON cp.id=jv.company_id
-			WHERE search_vector @@ to_tsquery('english', $1)`
-	rows, err := db.Query(query, searchStatement)
+			FROM job_vacancies AS jv INNER JOIN companies AS cp ON cp.id=jv.company_id`
+
+	var rows *sql.Rows
+	if searchStatement != "" {
+		query += ` WHERE search_vector @@ to_tsquery('english', $1)`
+		rows, err = db.Query(query, searchStatement)
+	} else {
+		rows, err = db.Query(query)
+	}
+
 	if err != nil {
 		return []models.JobVacancy{}, []string{}, err
 	}

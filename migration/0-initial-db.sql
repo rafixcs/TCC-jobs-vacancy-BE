@@ -1,7 +1,8 @@
 CREATE TABLE "companies"(
     "id" VARCHAR(255) NOT NULL,
     "name" VARCHAR(255) NOT NULL,
-    "creation_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
+    "creation_date" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+    "description" TEXT NOT NULL
 );
 ALTER TABLE
     "companies" ADD PRIMARY KEY("id");
