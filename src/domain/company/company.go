@@ -10,7 +10,7 @@ import (
 )
 
 type ICompanyDomain interface {
-	CreateCompany(name, description string) error
+	CreateCompany(name, email, description, location string) error
 	CompaniesList() ([]CompanyInfo, error)
 }
 
@@ -18,11 +18,13 @@ type CompanyDomain struct {
 	CompanyRepo repocompany.ICompanyRepository
 }
 
-func (d *CompanyDomain) CreateCompany(name, description string) error {
-	companyModel := models.CompanyModels{
+func (d *CompanyDomain) CreateCompany(name, email, description, location string) error {
+	companyModel := models.Company{
 		Id:           uuid.NewString(),
 		Name:         name,
+		Email:        email,
 		Description:  description,
+		Location:     location,
 		CreationDate: time.Now(),
 	}
 

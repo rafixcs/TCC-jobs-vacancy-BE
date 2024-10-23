@@ -12,7 +12,9 @@ import (
 
 type CreateCompanyRequest struct {
 	Name        string `json:"name"`
+	Email       string `json:"email"`
 	Description string `json:"description"`
+	Location    string `json:"location"`
 }
 
 func CreateCompany(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +30,7 @@ func CreateCompany(w http.ResponseWriter, r *http.Request) {
 	companyRepo := repocompany.CompanyRepository{Datasource: &datasource}
 	companyDomain := company.CompanyDomain{CompanyRepo: &companyRepo}
 
-	err = companyDomain.CreateCompany(createCompanyRequest.Name, createCompanyRequest.Description)
+	err = companyDomain.CreateCompany(createCompanyRequest.Name, createCompanyRequest.Email, createCompanyRequest.Description, createCompanyRequest.Location)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return

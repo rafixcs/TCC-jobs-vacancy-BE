@@ -4,13 +4,15 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/companyfactory"
+	"github.com/rafixcs/tcc-job-vacancy/src/datasources/models"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repocompany"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repousers"
 	"github.com/rafixcs/tcc-job-vacancy/src/utils"
 )
 
 type IUserDomain interface {
-	CreateUser(name, password, companyName string, roleId int) error
+	CreateUser(name, password, email, companyName, companyEmail, companyLocation, companyDescription string, roleId int) error
 }
 
 type UserDomain struct {
@@ -18,7 +20,7 @@ type UserDomain struct {
 	CompanyRepo repocompany.ICompanyRepository
 }
 
-func (d *UserDomain) CreateUser(name, password, companyName string, roleId int) error {
+func (d *UserDomain) CreateUser(name, password, email, companyName, companyEmail, companyLocation, companyDescription string, roleId int) error {
 	err := UserPasswordValidation(name, password)
 	if err != nil {
 		return err
@@ -44,12 +46,17 @@ func (d *UserDomain) CreateUser(name, password, companyName string, roleId int) 
 		return err
 	}
 
-	err = d.UserRepo.Create(userId, name, hashedPassword, roleId)
+	err = d.UserRepo.Create(userId, name, hashedPassword, email, roleId)
 
-	if roleId == 0 || roleId == 1 {
+	if roleId == 1 {
 		company, err := d.CompanyRepo.FindCompanyByName(companyName)
 		if err != nil {
 			return err
+		}
+
+		if company == (models.Company{}) {
+			companyDomain := companyfactory.CreateCompanyDomain()
+			companyDomain.CreateCompany(companyName, email, companyDescription, companyLocation)
 		}
 
 		err = d.CompanyRepo.CreateUserCompany(company.Id, userId)

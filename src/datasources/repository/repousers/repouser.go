@@ -8,7 +8,7 @@ import (
 )
 
 type IUserRepository interface {
-	Create(userId, name, password string, roleId int) error
+	Create(userId, name, password, email string, roleId int) error
 	CheckIfExists(name string) (bool, error)
 	FindUser(name string) (models.UserModels, error)
 }
@@ -17,7 +17,7 @@ type UserRepository struct {
 	Datasource datasources.IDatabasePsql
 }
 
-func (r *UserRepository) Create(userId, name, password string, roleId int) error {
+func (r *UserRepository) Create(userId, name, password, email string, roleId int) error {
 	r.Datasource.Open()
 	err := r.Datasource.GetError()
 	if err != nil {
@@ -26,8 +26,8 @@ func (r *UserRepository) Create(userId, name, password string, roleId int) error
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := `INSERT INTO users(id, name, password, role_id) VALUES ($1, $2, $3, $4)`
-	_, err = db.Exec(query, userId, name, password, roleId)
+	query := `INSERT INTO users(id, name, email, password, role_id) VALUES ($1, $2, $3, $4, $5)`
+	_, err = db.Exec(query, userId, name, email, password, roleId)
 	return err
 }
 
