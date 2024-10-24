@@ -13,7 +13,8 @@ import (
 )
 
 type IUserDomain interface {
-	CreateUser(name, password, email string, roleId int, company company.CompanyInfo) error
+	CreateUser(name, password, email, phone string, roleId int, company company.CompanyInfo) error
+	UserDetails(userId string) (UserDetails, error)
 }
 
 type UserDomain struct {
@@ -21,7 +22,7 @@ type UserDomain struct {
 	CompanyRepo repocompany.ICompanyRepository
 }
 
-func (d *UserDomain) CreateUser(name, password, email string, roleId int, company company.CompanyInfo) error {
+func (d *UserDomain) CreateUser(name, password, email, phone string, roleId int, company company.CompanyInfo) error {
 	err := UserPasswordValidation(name, password)
 	if err != nil {
 		return err
@@ -47,7 +48,7 @@ func (d *UserDomain) CreateUser(name, password, email string, roleId int, compan
 		return err
 	}
 
-	err = d.UserRepo.Create(userId, name, hashedPassword, email, roleId)
+	err = d.UserRepo.Create(userId, name, hashedPassword, email, phone, roleId)
 	if err != nil {
 		return err
 	}
@@ -82,4 +83,25 @@ func (d *UserDomain) handleCompanyUserCreate(userId string, roleId int, companyI
 	}
 
 	return nil
+}
+
+type UserDetails struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Phone string `json:"phone"`
+}
+
+func (d *UserDomain) UserDetails(userId string) (UserDetails, error) {
+	userModel, err := d.UserRepo.FindUserById(userId)
+	if err != nil {
+		return UserDetails{}, err
+	}
+
+	userDetails := UserDetails{
+		Name:  userModel.Name,
+		Email: userModel.Email,
+		Phone: userModel.Phone,
+	}
+
+	return userDetails, nil
 }

@@ -71,10 +71,11 @@ func GetJobVacancyDetails(w http.ResponseWriter, r *http.Request) {
 }
 
 type RegisterUserApplyJobVacancyRequest struct {
-	FullName    string `json:"name"`
+	FullName    string `json:"full_name"`
 	Email       string `json:"email"`
 	CoverLetter string `json:"cover_letter"`
 	JobId       string `json:"job_id"`
+	Phone       string `json:"phone"`
 }
 
 func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
@@ -100,6 +101,7 @@ func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 		requestContent.FullName,
 		requestContent.Email,
 		requestContent.CoverLetter,
+		requestContent.Phone,
 	)
 
 	if err != nil {
@@ -191,7 +193,7 @@ func SearchJobVacancies(w http.ResponseWriter, r *http.Request) {
 }
 
 type GetUsersAppliesToJobVacancyResponse struct {
-	UsersApplies []jobvacancy.JobVacancyApplies
+	UsersApplies []jobvacancy.JobVacancyApplies `json:"user_applies"`
 }
 
 func GetUsersAppliesToJobVacancy(w http.ResponseWriter, r *http.Request) {

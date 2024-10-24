@@ -14,7 +14,8 @@ CREATE TABLE "user_applies"(
     "user_id" VARCHAR(255) NOT NULL,
     "cover_letter" TEXT NOT NULL,
     "email" VARCHAR(255) NOT NULL,
-    "full_name" TEXT NOT NULL
+    "full_name" TEXT NOT NULL,
+    "phone" VARCHAR(255) NULL
 );
 ALTER TABLE
     "user_applies" ADD PRIMARY KEY("id");
@@ -46,7 +47,7 @@ CREATE TABLE "users"(
     "name" VARCHAR(255) NOT NULL,
     "password" VARCHAR(255) NOT NULL,
     "email" VARCHAR(255) NOT NULL,
-    "phone" VARCHAR(255) NOT NULL
+    "phone" VARCHAR(255) NULL
 );
 ALTER TABLE
     "users" ADD PRIMARY KEY("id");

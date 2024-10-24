@@ -39,7 +39,7 @@ func (d *AuthDomain) UserAuth(name, password string) (string, int, error) {
 		return "", -1, fmt.Errorf("user/password not matching")
 	}
 
-	userLoginModel := models.UserLoginsModel{
+	userLoginModel := models.UserLogins{
 		Id:        uuid.NewString(),
 		UserId:    userModel.Id,
 		LoginDate: time.Now(),

@@ -8,7 +8,7 @@ import (
 )
 
 type IAuthRepository interface {
-	CreateLogin(userLoginModel models.UserLoginsModel) error
+	CreateLogin(userLoginModel models.UserLogins) error
 	ValidateLogin(loginId, userId string) (bool, error)
 	UpdateToLogout(loginId, userId string) error
 }
@@ -17,7 +17,7 @@ type AuthRepository struct {
 	Datasource datasources.IDatabasePsql
 }
 
-func (r *AuthRepository) CreateLogin(userLoginModel models.UserLoginsModel) error {
+func (r *AuthRepository) CreateLogin(userLoginModel models.UserLogins) error {
 	r.Datasource.Open()
 	err := r.Datasource.GetError()
 	if err != nil {

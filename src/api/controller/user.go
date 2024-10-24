@@ -7,6 +7,7 @@ import (
 
 	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/userfactory"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/company"
+	"github.com/rafixcs/tcc-job-vacancy/src/utils"
 )
 
 type CreateUserRequest struct {
@@ -15,6 +16,7 @@ type CreateUserRequest struct {
 	Password string              `json:"password"`
 	RoleId   int                 `json:"role_id"`
 	Company  company.CompanyInfo `json:"company"`
+	Phone    string              `json:"phone"`
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +33,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		userRequest.Name,
 		userRequest.Password,
 		userRequest.Email,
+		userRequest.Phone,
 		userRequest.RoleId,
 		userRequest.Company,
 	)
@@ -41,4 +44,23 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func GetUserDetails(w http.ResponseWriter, r *http.Request) {
+	tokenHeader := r.Header.Get("Authorization")
+	userId, err := utils.GetUserIdFromToken(tokenHeader)
+	if err != nil {
+		http.Error(w, "bad token request", http.StatusBadRequest)
+		return
+	}
+
+	userDomain := userfactory.CreateUserDomain()
+	userDetails, err := userDomain.UserDetails(userId)
+	if err != nil {
+		http.Error(w, "couldnt get user details", http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(userDetails)
+	w.WriteHeader(http.StatusOK)
 }

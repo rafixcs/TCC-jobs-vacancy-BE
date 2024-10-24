@@ -13,7 +13,7 @@ import (
 
 type IJobVacancyDomain interface {
 	CreateJobVacancy(userId, companyId, description, title, location, salary string, requirements, responsabilities []string) error
-	CreateUserJobApply(userId, jobId, fullName, email, coverLetter string) error
+	CreateUserJobApply(userId, jobId, fullName, email, coverLetter, phone string) error
 	GetCompanyJobVacancies(companyName, companyId string) ([]JobVacancyInfo, error)
 	GetUserJobApplies(userId string) ([]JobVacancyInfo, error)
 	GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancyApplies, error)
@@ -121,7 +121,7 @@ func (d JobVacancyDomain) GetJobVacancyDetails(jobId string) (JobVacancyDetails,
 	return jobDetail, nil
 }
 
-func (d JobVacancyDomain) CreateUserJobApply(userId, jobId, fullName, email, coverLetter string) error {
+func (d JobVacancyDomain) CreateUserJobApply(userId, jobId, fullName, email, coverLetter, phone string) error {
 
 	userApply := models.UserApplies{
 		Id:           uuid.NewString(),
@@ -130,6 +130,7 @@ func (d JobVacancyDomain) CreateUserJobApply(userId, jobId, fullName, email, cov
 		FullName:     fullName,
 		Email:        email,
 		CoverLetter:  coverLetter,
+		Phone:        phone,
 	}
 
 	err := d.JobVacancyRepo.CreateUserJobApply(userApply)
@@ -163,22 +164,28 @@ func (d JobVacancyDomain) GetUserJobApplies(userId string) ([]JobVacancyInfo, er
 }
 
 type JobVacancyApplies struct {
-	UserId   string
-	UserName string
+	UserId      string `json:"user_id"`
+	CoverLetter string `json:"cover_letter"`
+	Email       string `json:"email"`
+	FullName    string `json:"full_name"`
+	Phone       string `json:"phone"`
 }
 
 func (d JobVacancyDomain) GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancyApplies, error) {
 
-	usersModels, err := d.JobVacancyRepo.GetJobVacancyApplies(jobId)
+	usersAppliesModel, err := d.JobVacancyRepo.GetJobVacancyApplies(jobId)
 	if err != nil {
 		return []JobVacancyApplies{}, err
 	}
 
 	var usersApplied []JobVacancyApplies
-	for _, model := range usersModels {
+	for _, model := range usersAppliesModel {
 		userApply := JobVacancyApplies{
-			UserId:   model.Id,
-			UserName: model.Name,
+			UserId:      model.Id,
+			CoverLetter: model.CoverLetter,
+			Email:       model.Email,
+			FullName:    model.FullName,
+			Phone:       model.Phone,
 		}
 
 		usersApplied = append(usersApplied, userApply)
