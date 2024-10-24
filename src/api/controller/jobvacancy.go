@@ -11,7 +11,6 @@ import (
 )
 
 type CreateJobVacancyRequest struct {
-	CompanyName      string   `json:"company"`
 	Description      string   `json:"description"`
 	Title            string   `json:"title"`
 	Location         string   `json:"location"`
@@ -28,6 +27,12 @@ func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	companyId, err := utils.GetCompanyIdFromToken(tokenHeader)
+	if err != nil {
+		http.Error(w, "failed to parse Authorization token", http.StatusUnauthorized)
+		return
+	}
+
 	var requestContent CreateJobVacancyRequest
 	json.NewDecoder(r.Body).Decode(&requestContent)
 
@@ -35,7 +40,7 @@ func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 
 	err = jobvacancyDomain.CreateJobVacancy(
 		userId,
-		requestContent.CompanyName,
+		companyId,
 		requestContent.Description,
 		requestContent.Title,
 		requestContent.Location,
@@ -96,14 +101,21 @@ type GetCompaniesJobVacanciesResponse struct {
 }
 
 func GetCompanyJobVacancies(w http.ResponseWriter, r *http.Request) {
+	tokenHeader := r.Header.Get("Authorization")
+	companyId, err := utils.GetCompanyIdFromToken(tokenHeader)
+	if err != nil {
+		http.Error(w, "failed to parse Authorization token", http.StatusUnauthorized)
+		return
+	}
+
 	companyName := r.URL.Query().Get("company")
-	if companyName == "" {
-		http.Error(w, "missing company name", http.StatusBadRequest)
+	if companyName == "" && companyId == "" {
+		http.Error(w, "missing company name/id", http.StatusBadRequest)
 		return
 	}
 
 	jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
-	jobVacancies, err := jobVacancyDomain.GetCompanyJobVacancies(companyName)
+	jobVacancies, err := jobVacancyDomain.GetCompanyJobVacancies(companyName, companyId)
 	if err != nil {
 		http.Error(w, "failed to get company job vacancies list", http.StatusBadRequest)
 		return

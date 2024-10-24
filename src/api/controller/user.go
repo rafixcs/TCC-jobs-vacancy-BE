@@ -6,17 +6,15 @@ import (
 	"net/http"
 
 	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/userfactory"
+	"github.com/rafixcs/tcc-job-vacancy/src/domain/company"
 )
 
 type CreateUserRequest struct {
-	Name               string `json:"name"`
-	Email              string `json:"email"`
-	Password           string `json:"password"`
-	CompanyName        string `json:"company"`
-	CompanyEmail       string `json:"company_email"`
-	CompanyLocation    string `json:"company_location"`
-	CompanyDescription string `json:"company_description"`
-	RoleId             int    `json:"role_id"`
+	Name     string              `json:"name"`
+	Email    string              `json:"email"`
+	Password string              `json:"password"`
+	RoleId   int                 `json:"role_id"`
+	Company  company.CompanyInfo `json:"company"`
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -33,11 +31,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		userRequest.Name,
 		userRequest.Password,
 		userRequest.Email,
-		userRequest.CompanyName,
-		userRequest.CompanyEmail,
-		userRequest.CompanyLocation,
-		userRequest.CompanyDescription,
 		userRequest.RoleId,
+		userRequest.Company,
 	)
 	if err != nil {
 		message := fmt.Sprintf("failed to create user: %s", err.Error())

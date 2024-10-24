@@ -12,9 +12,9 @@ import (
 )
 
 type IJobVacancyDomain interface {
-	CreateJobVacancy(userId, companyName, description, title, location, salary string, requirements, responsabilities []string) error
+	CreateJobVacancy(userId, companyId, description, title, location, salary string, requirements, responsabilities []string) error
 	CreateUserJobApply(userId, jobId string) error
-	GetCompanyJobVacancies(companyName string) ([]JobVacancyInfo, error)
+	GetCompanyJobVacancies(companyName, companyId string) ([]JobVacancyInfo, error)
 	GetUserJobApplies(userId string) ([]JobVacancyInfo, error)
 	GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancyApplies, error)
 	GetJobVacancyDetails(jobId string) (JobVacancyDetails, error)
@@ -27,12 +27,16 @@ type JobVacancyDomain struct {
 }
 
 func (d JobVacancyDomain) CreateJobVacancy(
-	userId, companyName, description, title, location, salary string,
+	userId, companyId, description, title, location, salary string,
 	requirements, responsabilities []string) error {
 
-	company, err := d.CompanyRepo.FindCompanyByName(companyName)
+	company, err := d.CompanyRepo.FindCompanyById(companyId)
 	if err != nil {
 		return err
+	}
+
+	if company == (models.Company{}) {
+		return fmt.Errorf("company not found")
 	}
 
 	jsonResp, err := json.Marshal(responsabilities)
@@ -133,8 +137,8 @@ func (d JobVacancyDomain) CreateUserJobApply(userId, jobId string) error {
 	return nil
 }
 
-func (d JobVacancyDomain) GetCompanyJobVacancies(companyName string) ([]JobVacancyInfo, error) {
-	jobVacanciesModel, err := d.JobVacancyRepo.GetCompanyJobVacancies(companyName)
+func (d JobVacancyDomain) GetCompanyJobVacancies(companyName, companyId string) ([]JobVacancyInfo, error) {
+	jobVacanciesModel, err := d.JobVacancyRepo.GetCompanyJobVacancies(companyName, companyId)
 	if err != nil {
 		return []JobVacancyInfo{}, err
 	}

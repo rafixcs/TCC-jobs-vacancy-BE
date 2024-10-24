@@ -13,7 +13,8 @@ type AuthRequest struct {
 }
 
 type AuthResponse struct {
-	Token string `json:"token"`
+	Token  string `json:"token"`
+	RoleId int    `json:"role_id"`
 }
 
 func Auth(w http.ResponseWriter, r *http.Request) {
@@ -26,14 +27,15 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 
 	authDomain := authfactory.CreateAuthDomain()
 
-	token, err := authDomain.UserAuth(authRequest.Name, authRequest.Password)
+	token, roleId, err := authDomain.UserAuth(authRequest.Name, authRequest.Password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
 	authResponse := AuthResponse{
-		Token: token,
+		Token:  token,
+		RoleId: roleId,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

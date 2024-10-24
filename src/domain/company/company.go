@@ -10,15 +10,16 @@ import (
 )
 
 type ICompanyDomain interface {
-	CreateCompany(name, email, description, location string) error
+	CreateCompany(name, email, description, location string) (models.Company, error)
 	CompaniesList() ([]CompanyInfo, error)
+	GetUserCompany(userId string) (CompanyInfo, error)
 }
 
 type CompanyDomain struct {
 	CompanyRepo repocompany.ICompanyRepository
 }
 
-func (d *CompanyDomain) CreateCompany(name, email, description, location string) error {
+func (d *CompanyDomain) CreateCompany(name, email, description, location string) (models.Company, error) {
 	companyModel := models.Company{
 		Id:           uuid.NewString(),
 		Name:         name,
@@ -30,26 +31,19 @@ func (d *CompanyDomain) CreateCompany(name, email, description, location string)
 
 	alreadyCreated, err := d.CompanyRepo.FindIfCompanyExists(name)
 	if err != nil {
-		return err
+		return models.Company{}, err
 	}
 
 	if alreadyCreated {
-		return fmt.Errorf("company already created")
+		return models.Company{}, fmt.Errorf("company already created")
 	}
 
 	err = d.CompanyRepo.CreateCompany(companyModel)
 	if err != nil {
-		return err
+		return models.Company{}, err
 	}
 
-	return nil
-}
-
-type CompanyInfo struct {
-	Id           string    `json:"id"`
-	Name         string    `json:"name"`
-	CreationDate time.Time `json:"creation_date"`
-	Description  string    `json:"description"`
+	return companyModel, nil
 }
 
 func (d *CompanyDomain) CompaniesList() ([]CompanyInfo, error) {
@@ -71,4 +65,14 @@ func (d *CompanyDomain) CompaniesList() ([]CompanyInfo, error) {
 	}
 
 	return companiesInfo, nil
+}
+
+func (d *CompanyDomain) GetUserCompany(userId string) (CompanyInfo, error) {
+	companyModel, err := d.CompanyRepo.FindCompanyByUserId(userId)
+	if err != nil {
+		return CompanyInfo{}, err
+	}
+
+	companyInfo := CompanyInfo{}.TransformFromModel(companyModel)
+	return companyInfo, nil
 }

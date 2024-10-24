@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/companyfactory"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/models"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repoauth"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repousers"
@@ -13,7 +14,7 @@ import (
 )
 
 type IAuthDomain interface {
-	UserAuth(name, password string) (string, error)
+	UserAuth(name, password string) (string, int, error)
 	Logout(tokenHeader string) error
 }
 
@@ -22,20 +23,20 @@ type AuthDomain struct {
 	UserRepo repousers.IUserRepository
 }
 
-func (d *AuthDomain) UserAuth(name, password string) (string, error) {
+func (d *AuthDomain) UserAuth(name, password string) (string, int, error) {
 	err := users.UserPasswordValidation(name, password)
 	if err != nil {
-		return "", err
+		return "", -1, err
 	}
 
 	userModel, err := d.UserRepo.FindUser(name)
 	if err != nil {
-		return "", err
+		return "", -1, err
 	}
 
 	passwordMatching := utils.ValidatePasswordHash(password, userModel.Password)
 	if !passwordMatching {
-		return "", fmt.Errorf("user/password not matching")
+		return "", -1, fmt.Errorf("user/password not matching")
 	}
 
 	userLoginModel := models.UserLoginsModel{
@@ -46,15 +47,27 @@ func (d *AuthDomain) UserAuth(name, password string) (string, error) {
 
 	err = d.AuthRepo.CreateLogin(userLoginModel)
 	if err != nil {
-		return "", err
+		return "", -1, err
 	}
 
-	token, err := utils.CreateUserJwtToken(userModel.Id, userLoginModel.Id)
+	var token string
+	if userModel.RoleId == 1 {
+		companyDomain := companyfactory.CreateCompanyDomain()
+		companyInfo, err := companyDomain.GetUserCompany(userModel.Id)
+		if err != nil {
+			return "", -1, err
+		}
+
+		token, err = utils.CreateUserCompanyJwtToken(userModel.Id, userLoginModel.Id, companyInfo.Id)
+	} else {
+		token, err = utils.CreateUserJwtToken(userModel.Id, userLoginModel.Id)
+	}
+
 	if err != nil {
-		return "", err
+		return "", -1, err
 	}
 
-	return token, nil
+	return token, userModel.RoleId, nil
 }
 
 func (d *AuthDomain) Logout(tokenHeader string) error {

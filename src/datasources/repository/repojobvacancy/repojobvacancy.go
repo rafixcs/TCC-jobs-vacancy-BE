@@ -10,7 +10,7 @@ import (
 type IJobVacancyRepository interface {
 	CreateJobVacancy(jobVacancy models.JobVacancy) error
 	CreateUserJobApply(userApply models.UserApplies) error
-	GetCompanyJobVacancies(companyName string) ([]models.JobVacancy, error)
+	GetCompanyJobVacancies(companyName, companyId string) ([]models.JobVacancy, error)
 	GetUserJobApplies(userId string) ([]models.JobVacancy, error)
 	GetJobVacancyApplies(jobId string) ([]models.UserModels, error)
 	GetJobVacancyDetails(jobId string) (models.JobVacancy, string, error)
@@ -75,7 +75,7 @@ func (r *JobVacancyRepository) CreateUserJobApply(userApply models.UserApplies) 
 	return nil
 }
 
-func (r *JobVacancyRepository) GetCompanyJobVacancies(companyName string) ([]models.JobVacancy, error) {
+func (r *JobVacancyRepository) GetCompanyJobVacancies(companyName, companyId string) ([]models.JobVacancy, error) {
 	r.Datasource.Open()
 	err := r.Datasource.GetError()
 	if err != nil {
@@ -84,8 +84,8 @@ func (r *JobVacancyRepository) GetCompanyJobVacancies(companyName string) ([]mod
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := `SELECT id, company_id, user_id, description, title, creation_date, location FROM job_vacancies WHERE company_id IN (SELECT id FROM companies WHERE name = $1)`
-	rows, err := db.Query(query, companyName)
+	query := `SELECT id, company_id, user_id, description, title, creation_date, location FROM job_vacancies WHERE company_id IN (SELECT id FROM companies WHERE id = $1 OR name = $2)`
+	rows, err := db.Query(query, companyId, companyName)
 	if err != nil {
 		return []models.JobVacancy{}, err
 	}
@@ -98,7 +98,6 @@ func (r *JobVacancyRepository) GetCompanyJobVacancies(companyName string) ([]mod
 	}
 
 	return jobVacancies, nil
-
 }
 
 func (r *JobVacancyRepository) GetJobVacancyApplies(jobId string) ([]models.UserModels, error) {

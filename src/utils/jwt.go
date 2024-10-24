@@ -13,6 +13,13 @@ type UserAuthClaims struct {
 	jwt.RegisteredClaims
 }
 
+type UserCompanyAuthClaims struct {
+	CompanyId string `json:"company_id"`
+	UserId    string `json:"user_id"`
+	LoginId   string `json:"login_id"`
+	jwt.RegisteredClaims
+}
+
 const JWT_SECRET = "secretpass"
 
 func ParseToken(tokenStr string) (*jwt.Token, error) {
@@ -43,6 +50,23 @@ func CreateUserJwtToken(userId, loginId string) (string, error) {
 	return ss, err
 }
 
+func CreateUserCompanyJwtToken(userId, loginId, companyId string) (string, error) {
+	claims := UserCompanyAuthClaims{
+		CompanyId: companyId,
+		UserId:    userId,
+		LoginId:   loginId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Issuer:    "test",
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	ss, err := token.SignedString([]byte(JWT_SECRET))
+	return ss, err
+}
+
 func GetUserIdFromToken(tokenHeader string) (string, error) {
 	token, err := ParseToken(tokenHeader)
 	if err != nil {
@@ -60,6 +84,25 @@ func GetUserIdFromToken(tokenHeader string) (string, error) {
 	}
 
 	return userId, nil
+}
+
+func GetCompanyIdFromToken(tokenHeader string) (string, error) {
+	token, err := ParseToken(tokenHeader)
+	if err != nil {
+		return "", fmt.Errorf("invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", fmt.Errorf("invalid token claims")
+	}
+
+	compayId, ok := claims["company_id"].(string)
+	if !ok {
+		return "", fmt.Errorf("token missing user field")
+	}
+
+	return compayId, nil
 }
 
 func GetUserAuthIdsFromToken(tokenHeader string) (string, string, error) {
