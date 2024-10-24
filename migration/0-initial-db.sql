@@ -11,7 +11,10 @@ ALTER TABLE
 CREATE TABLE "user_applies"(
     "id" VARCHAR(255) NOT NULL,
     "job_vacancy_id" VARCHAR(255) NOT NULL,
-    "user_id" VARCHAR(255) NOT NULL
+    "user_id" VARCHAR(255) NOT NULL,
+    "cover_letter" TEXT NOT NULL,
+    "email" VARCHAR(255) NOT NULL,
+    "full_name" TEXT NOT NULL
 );
 ALTER TABLE
     "user_applies" ADD PRIMARY KEY("id");
@@ -42,7 +45,8 @@ CREATE TABLE "users"(
     "role_id" INTEGER NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "password" VARCHAR(255) NOT NULL,
-    "email" VARCHAR(255) NOT NULL
+    "email" VARCHAR(255) NOT NULL,
+    "phone" VARCHAR(255) NOT NULL
 );
 ALTER TABLE
     "users" ADD PRIMARY KEY("id");

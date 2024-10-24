@@ -13,7 +13,7 @@ import (
 
 type IJobVacancyDomain interface {
 	CreateJobVacancy(userId, companyId, description, title, location, salary string, requirements, responsabilities []string) error
-	CreateUserJobApply(userId, jobId string) error
+	CreateUserJobApply(userId, jobId, fullName, email, coverLetter string) error
 	GetCompanyJobVacancies(companyName, companyId string) ([]JobVacancyInfo, error)
 	GetUserJobApplies(userId string) ([]JobVacancyInfo, error)
 	GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancyApplies, error)
@@ -121,12 +121,15 @@ func (d JobVacancyDomain) GetJobVacancyDetails(jobId string) (JobVacancyDetails,
 	return jobDetail, nil
 }
 
-func (d JobVacancyDomain) CreateUserJobApply(userId, jobId string) error {
+func (d JobVacancyDomain) CreateUserJobApply(userId, jobId, fullName, email, coverLetter string) error {
 
 	userApply := models.UserApplies{
 		Id:           uuid.NewString(),
 		UserId:       userId,
 		JobVacancyId: jobId,
+		FullName:     fullName,
+		Email:        email,
+		CoverLetter:  coverLetter,
 	}
 
 	err := d.JobVacancyRepo.CreateUserJobApply(userApply)

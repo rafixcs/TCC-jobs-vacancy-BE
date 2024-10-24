@@ -70,6 +70,13 @@ func GetJobVacancyDetails(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&jobVacancy)
 }
 
+type RegisterUserApplyJobVacancyRequest struct {
+	FullName    string `json:"name"`
+	Email       string `json:"email"`
+	CoverLetter string `json:"cover_letter"`
+	JobId       string `json:"job_id"`
+}
+
 func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 	tokenHeader := r.Header.Get("Authorization")
 	userId, err := utils.GetUserIdFromToken(tokenHeader)
@@ -78,15 +85,23 @@ func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jobId := r.URL.Query().Get("job_id")
-	if jobId == "" {
-		http.Error(w, "missing job_id", http.StatusUnauthorized)
+	var requestContent RegisterUserApplyJobVacancyRequest
+	err = json.NewDecoder(r.Body).Decode(&requestContent)
+	if err != nil {
+		http.Error(w, "bad body format", http.StatusBadRequest)
 		return
 	}
 
 	jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
 
-	err = jobVacancyDomain.CreateUserJobApply(userId, jobId)
+	err = jobVacancyDomain.CreateUserJobApply(
+		userId,
+		requestContent.JobId,
+		requestContent.FullName,
+		requestContent.Email,
+		requestContent.CoverLetter,
+	)
+
 	if err != nil {
 		http.Error(w, "could not create user apply", http.StatusUnauthorized)
 		return

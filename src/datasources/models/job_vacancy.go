@@ -19,4 +19,7 @@ type UserApplies struct {
 	Id           string
 	UserId       string `json:"user_id"`
 	JobVacancyId string `json:"job_vacancy_id"`
+	FullName     string `json:"full_name"`
+	Email        string `json:"email"`
+	CoverLetter  string `json:"cover_letter"`
 }

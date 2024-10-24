@@ -66,8 +66,19 @@ func (r *JobVacancyRepository) CreateUserJobApply(userApply models.UserApplies) 
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := `INSERT INTO user_applies (id, job_vacancy_id, user_id) VALUES ($1, $2, $3)`
-	_, err = db.Exec(query, userApply.Id, userApply.JobVacancyId, userApply.UserId)
+	query := `INSERT INTO user_applies (
+				id, job_vacancy_id, user_id, full_name, email, cover_letter
+				) VALUES ($1, $2, $3, $4, $5, $6)`
+
+	_, err = db.Exec(query,
+		userApply.Id,
+		userApply.JobVacancyId,
+		userApply.UserId,
+		userApply.FullName,
+		userApply.Email,
+		userApply.CoverLetter,
+	)
+
 	if err != nil {
 		return err
 	}
