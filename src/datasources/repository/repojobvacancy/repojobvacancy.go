@@ -11,7 +11,7 @@ type IJobVacancyRepository interface {
 	CreateJobVacancy(jobVacancy models.JobVacancy) error
 	CreateUserJobApply(userApply models.UserApplies) error
 	GetCompanyJobVacancies(companyName, companyId string) ([]models.JobVacancy, error)
-	GetUserJobApplies(userId string) ([]models.JobVacancy, error)
+	GetUserJobApplies(userId string) ([]models.JobVacancy, []models.UserApplies, []string, error)
 	GetJobVacancyApplies(jobId string) ([]models.UserApplies, error)
 	GetJobVacancyDetails(jobId string) (models.JobVacancy, string, error)
 	SearchJobVacancies(searchStatement string) ([]models.JobVacancy, []string, error)
@@ -146,29 +146,57 @@ func (r *JobVacancyRepository) GetJobVacancyApplies(jobId string) ([]models.User
 	return applies, nil
 }
 
-func (r *JobVacancyRepository) GetUserJobApplies(userId string) ([]models.JobVacancy, error) {
+func (r *JobVacancyRepository) GetUserJobApplies(userId string) ([]models.JobVacancy, []models.UserApplies, []string, error) {
 	r.Datasource.Open()
 	err := r.Datasource.GetError()
 	if err != nil {
-		return []models.JobVacancy{}, err
+		return []models.JobVacancy{}, []models.UserApplies{}, []string{}, err
 	}
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := `SELECT jv.id, jv.company_id, jv.user_id, jv.description, jv.title, jv.creation_date FROM job_vacancies AS jv INNER JOIN user_applies AS ua ON ua.job_vacancy_id=jv.id WHERE ua.user_id = $1`
+	query := `SELECT 
+		jv.id, jv.company_id, jv.user_id, jv.description, jv.title, jv.creation_date, cp.name,
+		ua.id, ua.cover_letter, ua.email, ua.full_name, ua.phone
+		FROM job_vacancies AS jv 
+		INNER JOIN user_applies AS ua ON ua.job_vacancy_id=jv.id 
+		INNER JOIN companies AS cp ON cp.id=jv.company_id
+		WHERE ua.user_id = $1`
 	rows, err := db.Query(query, userId)
 	if err != nil {
-		return []models.JobVacancy{}, err
+		return []models.JobVacancy{}, []models.UserApplies{}, []string{}, err
 	}
 
 	var jobVacancies []models.JobVacancy
+	var userApplies []models.UserApplies
+	var companies []string
 	for rows.Next() {
 		var jobVacancy models.JobVacancy
-		rows.Scan(&jobVacancy.Id, &jobVacancy.CompanyId, &jobVacancy.UserId, &jobVacancy.Description, &jobVacancy.Title, &jobVacancy.CreationDate)
+		var company string
+		var userApply models.UserApplies
+		rows.Scan(
+			&jobVacancy.Id,
+			&jobVacancy.CompanyId,
+			&jobVacancy.UserId,
+			&jobVacancy.Description,
+			&jobVacancy.Title,
+			&jobVacancy.CreationDate,
+			&company,
+			&userApply.Id,
+			&userApply.CoverLetter,
+			&userApply.Email,
+			&userApply.FullName,
+			&userApply.Phone,
+		)
+		userApply.UserId = jobVacancy.UserId
+		userApply.JobVacancyId = jobVacancy.Id
+
 		jobVacancies = append(jobVacancies, jobVacancy)
+		companies = append(companies, company)
+		userApplies = append(userApplies, userApply)
 	}
 
-	return jobVacancies, nil
+	return jobVacancies, userApplies, companies, nil
 }
 
 func (r *JobVacancyRepository) GetJobVacancyDetails(jobId string) (models.JobVacancy, string, error) {

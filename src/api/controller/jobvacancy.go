@@ -147,7 +147,7 @@ func GetCompanyJobVacancies(w http.ResponseWriter, r *http.Request) {
 }
 
 type UserJobAppliesResponse struct {
-	JobApplies []jobvacancy.JobVacancyInfo
+	JobApplies []jobvacancy.UserJobApply
 }
 
 func GetUserJobVacancies(w http.ResponseWriter, r *http.Request) {
@@ -159,14 +159,14 @@ func GetUserJobVacancies(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
-	jobApplies, err := jobVacancyDomain.GetUserJobApplies(userId)
+	userJobApplies, err := jobVacancyDomain.GetUserJobApplies(userId)
 	if err != nil {
 		http.Error(w, "failed to get user job applies list", http.StatusBadRequest)
 		return
 	}
 
 	responseBody := UserJobAppliesResponse{
-		JobApplies: jobApplies,
+		JobApplies: userJobApplies,
 	}
 
 	json.NewEncoder(w).Encode(&responseBody)
