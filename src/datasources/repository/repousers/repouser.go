@@ -1,8 +1,6 @@
 package repousers
 
 import (
-	"fmt"
-
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/models"
 )
@@ -10,7 +8,7 @@ import (
 type IUserRepository interface {
 	Create(userId, name, password, email, phone string, roleId int) error
 	CheckIfExists(name string) (bool, error)
-	FindUser(name string) (models.User, error)
+	FindUserByEmail(email string) (models.User, error)
 	FindUserById(userId string) (models.User, error)
 }
 
@@ -52,7 +50,7 @@ func (r *UserRepository) CheckIfExists(name string) (bool, error) {
 	return alreadyCreatedUser, nil
 }
 
-func (r *UserRepository) FindUser(name string) (models.User, error) {
+func (r *UserRepository) FindUserByEmail(email string) (models.User, error) {
 	r.Datasource.Open()
 	err := r.Datasource.GetError()
 	if err != nil {
@@ -61,26 +59,19 @@ func (r *UserRepository) FindUser(name string) (models.User, error) {
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	var (
-		id     string
-		pass   string
-		roleId int
+	var userModel models.User
+	query := `SELECT id, name, password, role_id, email, phone  FROM users WHERE email = $1`
+	err = db.QueryRow(query, email).Scan(
+		&userModel.Id,
+		&userModel.Name,
+		&userModel.Password,
+		&userModel.RoleId,
+		&userModel.Email,
+		&userModel.Phone,
 	)
-	query := `SELECT id, password, role_id  FROM users WHERE name = $1`
-	err = db.QueryRow(query, name).Scan(&id, &pass, &roleId)
+
 	if err != nil {
 		return models.User{}, err
-	}
-
-	if id == "" {
-		return models.User{}, fmt.Errorf("user not found")
-	}
-
-	userModel := models.User{
-		Id:       id,
-		Name:     name,
-		Password: pass,
-		RoleId:   roleId,
 	}
 
 	return userModel, nil

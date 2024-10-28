@@ -14,7 +14,7 @@ import (
 )
 
 type IAuthDomain interface {
-	UserAuth(name, password string) (string, int, error)
+	UserAuth(email, password string) (string, int, error)
 	Logout(tokenHeader string) error
 }
 
@@ -23,13 +23,13 @@ type AuthDomain struct {
 	UserRepo repousers.IUserRepository
 }
 
-func (d *AuthDomain) UserAuth(name, password string) (string, int, error) {
-	err := users.UserPasswordValidation(name, password)
+func (d *AuthDomain) UserAuth(email, password string) (string, int, error) {
+	err := users.UserPasswordValidation(email, password)
 	if err != nil {
 		return "", -1, err
 	}
 
-	userModel, err := d.UserRepo.FindUser(name)
+	userModel, err := d.UserRepo.FindUserByEmail(email)
 	if err != nil {
 		return "", -1, err
 	}

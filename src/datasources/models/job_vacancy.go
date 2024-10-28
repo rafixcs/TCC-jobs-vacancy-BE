@@ -13,6 +13,8 @@ type JobVacancy struct {
 	Salary           string    `json:"salary"`
 	Requirements     string    `json:"requirements"`
 	Responsibilities string    `json:"responsibilities"`
+	JobType          string    `json:"job_type"`
+	ExperienceLevel  string    `json:"experience_level"`
 }
 
 type UserApplies struct {

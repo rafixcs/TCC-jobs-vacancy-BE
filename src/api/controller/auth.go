@@ -8,7 +8,7 @@ import (
 )
 
 type AuthRequest struct {
-	Name     string `json:"name"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -27,7 +27,7 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 
 	authDomain := authfactory.CreateAuthDomain()
 
-	token, roleId, err := authDomain.UserAuth(authRequest.Name, authRequest.Password)
+	token, roleId, err := authDomain.UserAuth(authRequest.Email, authRequest.Password)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return

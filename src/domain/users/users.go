@@ -86,9 +86,10 @@ func (d *UserDomain) handleCompanyUserCreate(userId string, roleId int, companyI
 }
 
 type UserDetails struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Phone string `json:"phone"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Phone  string `json:"phone"`
+	RoleId int    `json:"role_id"`
 }
 
 func (d *UserDomain) UserDetails(userId string) (UserDetails, error) {
@@ -98,9 +99,10 @@ func (d *UserDomain) UserDetails(userId string) (UserDetails, error) {
 	}
 
 	userDetails := UserDetails{
-		Name:  userModel.Name,
-		Email: userModel.Email,
-		Phone: userModel.Phone,
+		Name:   userModel.Name,
+		Email:  userModel.Email,
+		Phone:  userModel.Phone,
+		RoleId: userModel.RoleId,
 	}
 
 	return userDetails, nil

@@ -12,7 +12,7 @@ import (
 )
 
 type IJobVacancyDomain interface {
-	CreateJobVacancy(userId, companyId, description, title, location, salary string, requirements, responsabilities []string) error
+	CreateJobVacancy(userId, companyId, description, title, location, salary, jobType, experienceLevel string, requirements, responsabilities []string) error
 	CreateUserJobApply(userId, jobId, fullName, email, coverLetter, phone string) error
 	GetCompanyJobVacancies(companyName, companyId string) ([]JobVacancyInfo, error)
 	GetUserJobApplies(userId string) ([]UserJobApply, error)
@@ -27,7 +27,7 @@ type JobVacancyDomain struct {
 }
 
 func (d JobVacancyDomain) CreateJobVacancy(
-	userId, companyId, description, title, location, salary string,
+	userId, companyId, description, title, location, salary, jobType, experienceLevel string,
 	requirements, responsabilities []string) error {
 
 	company, err := d.CompanyRepo.FindCompanyById(companyId)
@@ -62,6 +62,8 @@ func (d JobVacancyDomain) CreateJobVacancy(
 		Responsibilities: responsabilitiesData,
 		Requirements:     requirementsData,
 		Salary:           salary,
+		JobType:          jobType,
+		ExperienceLevel:  experienceLevel,
 	}
 
 	err = d.JobVacancyRepo.CreateJobVacancy(jobVacancy)
@@ -82,6 +84,8 @@ type JobVacancyDetails struct {
 	Requirements     []string  `json:"requirements"`
 	Responsibilities []string  `json:"responsibilities"`
 	Company          string    `json:"company"`
+	JobType          string    `json:"job_type"`
+	ExperienceLevel  string    `json:"experience_level"`
 }
 
 func (d JobVacancyDomain) GetJobVacancyDetails(jobId string) (JobVacancyDetails, error) {
@@ -116,6 +120,8 @@ func (d JobVacancyDomain) GetJobVacancyDetails(jobId string) (JobVacancyDetails,
 		Responsibilities: responsibilitieslist,
 		Company:          companyName,
 		Location:         jobVacancyModel.Location,
+		JobType:          jobVacancyModel.JobType,
+		ExperienceLevel:  jobVacancyModel.ExperienceLevel,
 	}
 
 	return jobDetail, nil

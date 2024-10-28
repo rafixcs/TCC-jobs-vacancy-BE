@@ -12,7 +12,7 @@ CREATE TABLE "user_applies"(
     "id" VARCHAR(255) NOT NULL,
     "job_vacancy_id" VARCHAR(255) NOT NULL,
     "user_id" VARCHAR(255) NOT NULL,
-    "cover_letter" TEXT NOT NULL,
+    "cover_letter" TEXT NULL,
     "email" VARCHAR(255) NOT NULL,
     "full_name" TEXT NOT NULL,
     "phone" VARCHAR(255) NULL
@@ -37,7 +37,9 @@ CREATE TABLE "job_vacancies"(
     "location" VARCHAR(255) NOT NULL,
     "salary" VARCHAR(255) NOT NULL,
     "requirements" TEXT NOT NULL,
-    "responsibilities" TEXT NOT NULL
+    "responsibilities" TEXT NOT NULL,
+    "job_type" VARCHAR(255) NOT NULL,
+    "experience_level" VARCHAR(255) NOT NULL
 );
 ALTER TABLE
     "job_vacancies" ADD PRIMARY KEY("id");

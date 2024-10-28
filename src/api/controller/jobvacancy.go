@@ -17,6 +17,8 @@ type CreateJobVacancyRequest struct {
 	Salary           string   `json:"salary"`
 	Requirements     []string `json:"requirements"`
 	Responsibilities []string `json:"responsibilities"`
+	JobType          string   `json:"job_type"`
+	ExperienceLevel  string   `json:"experience_level"`
 }
 
 func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
@@ -45,6 +47,8 @@ func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 		requestContent.Title,
 		requestContent.Location,
 		requestContent.Salary,
+		requestContent.JobType,
+		requestContent.ExperienceLevel,
 		requestContent.Requirements,
 		requestContent.Responsibilities,
 	)

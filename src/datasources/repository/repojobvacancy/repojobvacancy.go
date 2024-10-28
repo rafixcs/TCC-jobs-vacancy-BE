@@ -33,8 +33,8 @@ func (r *JobVacancyRepository) CreateJobVacancy(jobVacancy models.JobVacancy) er
 	query := `INSERT INTO job_vacancies(
 			id, user_id, company_id, description,
 			title, location, creation_date, responsibilities,
-			requirements, salary
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+			requirements, salary, job_type, experience_level
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
 
 	_, err = db.Exec(
 		query,
@@ -48,6 +48,8 @@ func (r *JobVacancyRepository) CreateJobVacancy(jobVacancy models.JobVacancy) er
 		jobVacancy.Responsibilities,
 		jobVacancy.Requirements,
 		jobVacancy.Salary,
+		jobVacancy.JobType,
+		jobVacancy.ExperienceLevel,
 	)
 
 	if err != nil {
@@ -212,7 +214,7 @@ func (r *JobVacancyRepository) GetJobVacancyDetails(jobId string) (models.JobVac
 		SELECT 
 			jv.id, jv.user_id, jv.company_id, jv.description,
 			jv.title, jv.creation_date, jv.location, jv.salary,
-			jv.requirements, jv.responsibilities,
+			jv.requirements, jv.responsibilities, jv.job_type, jv.experience_level,
 			cp.name
 		FROM job_vacancies AS jv INNER JOIN companies AS cp ON cp.id=jv.company_id WHERE jv.id = $1
 		`
@@ -235,6 +237,8 @@ func (r *JobVacancyRepository) GetJobVacancyDetails(jobId string) (models.JobVac
 			&jobVacancy.Salary,
 			&jobVacancy.Requirements,
 			&jobVacancy.Responsibilities,
+			&jobVacancy.JobType,
+			&jobVacancy.ExperienceLevel,
 			&companyName,
 		)
 	}
