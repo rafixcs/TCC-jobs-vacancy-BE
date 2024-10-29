@@ -2,6 +2,7 @@ package controller
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -83,6 +84,12 @@ type RegisterUserApplyJobVacancyRequest struct {
 }
 
 func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(10 << 20) // 10 MB
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	tokenHeader := r.Header.Get("Authorization")
 	userId, err := utils.GetUserIdFromToken(tokenHeader)
 	if err != nil {
@@ -90,15 +97,34 @@ func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var requestContent RegisterUserApplyJobVacancyRequest
+	/*var requestContent RegisterUserApplyJobVacancyRequest
 	err = json.NewDecoder(r.Body).Decode(&requestContent)
 	if err != nil {
 		http.Error(w, "bad body format", http.StatusBadRequest)
 		return
+	}*/
+
+	var requestContent RegisterUserApplyJobVacancyRequest
+	requestContent.FullName = r.FormValue("full_name")
+	requestContent.Email = r.FormValue("email")
+	requestContent.Phone = r.FormValue("phone")
+	requestContent.CoverLetter = r.FormValue("cover_letter")
+	requestContent.JobId = r.FormValue("job_id")
+
+	file, handler, err := r.FormFile("resume")
+	if err != nil {
+		log.Println("Error retrieving file")
+		log.Println(err)
+		http.Error(w, "Invalid file upload", http.StatusBadRequest)
+		return
+	}
+
+	resumeFile := jobvacancy.JobVacancyResumeFile{
+		File:   file,
+		Header: handler,
 	}
 
 	jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
-
 	err = jobVacancyDomain.CreateUserJobApply(
 		userId,
 		requestContent.JobId,
@@ -106,6 +132,7 @@ func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 		requestContent.Email,
 		requestContent.CoverLetter,
 		requestContent.Phone,
+		resumeFile,
 	)
 
 	if err != nil {

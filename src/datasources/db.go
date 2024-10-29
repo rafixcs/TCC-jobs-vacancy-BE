@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
+	config "github.com/rafixcs/tcc-job-vacancy/src/configuration"
 )
 
 type IDatabasePsql interface {
@@ -20,7 +21,7 @@ type DatabasePsql struct {
 }
 
 func (dbpsql *DatabasePsql) Open() {
-	dsn := fmt.Sprintf(`host=%s port=%s user=%s password=%s dbname=%s sslmode=disable`, "localhost", "12345", "root", "root", "root")
+	dsn := fmt.Sprintf(`host=%s port=%s user=%s password=%s dbname=%s sslmode=disable`, config.DB_HOST, config.DB_PORT, config.DB_USER, config.DB_PASSWORD, config.DB_NAME)
 	dbpsql.DB, dbpsql.Error = sql.Open("postgres", dsn)
 	if dbpsql.Error != nil {
 		return

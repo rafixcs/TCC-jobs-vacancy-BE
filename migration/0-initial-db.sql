@@ -15,7 +15,8 @@ CREATE TABLE "user_applies"(
     "cover_letter" TEXT NULL,
     "email" VARCHAR(255) NOT NULL,
     "full_name" TEXT NOT NULL,
-    "phone" VARCHAR(255) NULL
+    "phone" VARCHAR(255) NULL,
+    "url_resume" TEXT NOT NULL
 );
 ALTER TABLE
     "user_applies" ADD PRIMARY KEY("id");

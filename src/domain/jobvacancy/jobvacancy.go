@@ -3,17 +3,26 @@ package jobvacancy
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
+	config "github.com/rafixcs/tcc-job-vacancy/src/configuration"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/models"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repocompany"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repojobvacancy"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 type IJobVacancyDomain interface {
 	CreateJobVacancy(userId, companyId, description, title, location, salary, jobType, experienceLevel string, requirements, responsabilities []string) error
-	CreateUserJobApply(userId, jobId, fullName, email, coverLetter, phone string) error
+	CreateUserJobApply(userId, jobId, fullName, email, coverLetter, phone string, resumeFile JobVacancyResumeFile) error
 	GetCompanyJobVacancies(companyName, companyId string) ([]JobVacancyInfo, error)
 	GetUserJobApplies(userId string) ([]UserJobApply, error)
 	GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancyApplies, error)
@@ -127,7 +136,48 @@ func (d JobVacancyDomain) GetJobVacancyDetails(jobId string) (JobVacancyDetails,
 	return jobDetail, nil
 }
 
-func (d JobVacancyDomain) CreateUserJobApply(userId, jobId, fullName, email, coverLetter, phone string) error {
+func (d JobVacancyDomain) CreateUserJobApply(userId, jobId, fullName, email, coverLetter, phone string, resumeFile JobVacancyResumeFile) error {
+
+	defer resumeFile.File.Close()
+
+	sess, err := session.NewSession(&aws.Config{
+		Credentials: credentials.NewStaticCredentials(config.CF_ACCESS_KEY, config.CF_SECRET_ACCESS_KEY, ""),
+		Endpoint:    aws.String(config.R2_ENDPOINT),
+		Region:      aws.String("us-east-1"),
+	})
+
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("Error creating AWS session")
+	}
+
+	svc := s3.New(sess)
+	objectKey := fmt.Sprintf("%d-%s", time.Now().UnixNano(), resumeFile.Header.Filename)
+	_, err = svc.PutObject(&s3.PutObjectInput{
+		Bucket: aws.String(config.R2_BUCKET),
+		Key:    aws.String(objectKey),
+		Body:   resumeFile.File,
+		ACL:    aws.String("public-read"),
+	})
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("Error uploading file")
+	}
+
+	fileURL := fmt.Sprintf("%s/%s/%s", config.R2_ENDPOINT, config.R2_BUCKET, objectKey)
+
+	tempFile, err := os.Create("/app/uploads/" + resumeFile.Header.Filename)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer tempFile.Close()
+
+	_, err = io.Copy(tempFile, resumeFile.File)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 
 	userApply := models.UserApplies{
 		Id:           uuid.NewString(),
@@ -137,9 +187,10 @@ func (d JobVacancyDomain) CreateUserJobApply(userId, jobId, fullName, email, cov
 		Email:        email,
 		CoverLetter:  coverLetter,
 		Phone:        phone,
+		UrlResume:    fileURL,
 	}
 
-	err := d.JobVacancyRepo.CreateUserJobApply(userApply)
+	err = d.JobVacancyRepo.CreateUserJobApply(userApply)
 	if err != nil {
 		return err
 	}
@@ -189,6 +240,7 @@ type JobVacancyApplies struct {
 	Email       string `json:"email"`
 	FullName    string `json:"full_name"`
 	Phone       string `json:"phone"`
+	UrlResume   string `json:"url_resume"`
 }
 
 func (d JobVacancyDomain) GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancyApplies, error) {
@@ -206,6 +258,7 @@ func (d JobVacancyDomain) GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancy
 			Email:       model.Email,
 			FullName:    model.FullName,
 			Phone:       model.Phone,
+			UrlResume:   model.UrlResume,
 		}
 
 		usersApplied = append(usersApplied, userApply)

@@ -13,6 +13,7 @@ type JobVacancyInfo struct {
 	CreationDate time.Time `json:"creation_date"`
 	Company      string    `json:"company"`
 	Location     string    `json:"location"`
+	UrlResume    string    `json:"url_resume"`
 }
 
 func (j JobVacancyInfo) TrasformFromModel(model models.JobVacancy, companyName string) JobVacancyInfo {

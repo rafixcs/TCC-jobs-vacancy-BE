@@ -10,6 +10,8 @@ type IUserRepository interface {
 	CheckIfExists(name string) (bool, error)
 	FindUserByEmail(email string) (models.User, error)
 	FindUserById(userId string) (models.User, error)
+	UpdateUser(user models.User) error
+	UpdatePassword(user models.User) error
 }
 
 type UserRepository struct {
@@ -102,4 +104,34 @@ func (r *UserRepository) FindUserById(userId string) (models.User, error) {
 	}
 
 	return userModel, nil
+}
+
+func (r *UserRepository) UpdateUser(user models.User) error {
+	r.Datasource.Open()
+	err := r.Datasource.GetError()
+	if err != nil {
+		return err
+	}
+	defer r.Datasource.Close()
+	db := r.Datasource.GetDB()
+
+	query := `UPDATE users SET name = $1, phone = $2 WHERE id = $3`
+
+	_, err = db.Exec(query, user.Name, user.Phone, user.Id)
+	return err
+}
+
+func (r *UserRepository) UpdatePassword(user models.User) error {
+	r.Datasource.Open()
+	err := r.Datasource.GetError()
+	if err != nil {
+		return err
+	}
+	defer r.Datasource.Close()
+	db := r.Datasource.GetDB()
+
+	query := `UPDATE users SET password = $1 WHERE id = $2`
+
+	_, err = db.Exec(query, user.Password, user.Id)
+	return err
 }

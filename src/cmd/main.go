@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rafixcs/tcc-job-vacancy/src/api/middleware"
 	"github.com/rafixcs/tcc-job-vacancy/src/api/routes"
+	config "github.com/rafixcs/tcc-job-vacancy/src/configuration"
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources"
 )
 
@@ -32,6 +33,6 @@ func main() {
 	myRouter := routes.JobRouter{Router: r}
 	myRouter.CreateRoutes()
 
-	log.Println("Server listening on port 8000")
-	log.Fatal(http.ListenAndServe(":8000", handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders)(r)))
+	log.Printf(`Server listening on port %v`, config.PORT)
+	log.Fatal(http.ListenAndServe(":"+config.PORT, handlers.CORS(allowedOrigins, allowedMethods, allowedHeaders)(r)))
 }

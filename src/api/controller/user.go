@@ -64,3 +64,63 @@ func GetUserDetails(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(userDetails)
 	w.WriteHeader(http.StatusOK)
 }
+
+type UpdateUserRequest struct {
+	Name  string `json:"name"`
+	Phone string `json:"phone"`
+}
+
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	tokenHeader := r.Header.Get("Authorization")
+	userId, err := utils.GetUserIdFromToken(tokenHeader)
+	if err != nil {
+		http.Error(w, "bad token request", http.StatusBadRequest)
+		return
+	}
+
+	var updateUserRequest UpdateUserRequest
+	err = json.NewDecoder(r.Body).Decode(&updateUserRequest)
+	if err != nil {
+		http.Error(w, "bad body format", http.StatusBadRequest)
+		return
+	}
+
+	userDomain := userfactory.CreateUserDomain()
+	err = userDomain.UpdateUser(userId, updateUserRequest.Name, updateUserRequest.Phone)
+	if err != nil {
+		http.Error(w, "couldn't update user", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+type ChangePasswordRequest struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+func ChangePassword(w http.ResponseWriter, r *http.Request) {
+	tokenHeader := r.Header.Get("Authorization")
+	userId, err := utils.GetUserIdFromToken(tokenHeader)
+	if err != nil {
+		http.Error(w, "bad token request", http.StatusBadRequest)
+		return
+	}
+
+	var changePasswordRequest ChangePasswordRequest
+	err = json.NewDecoder(r.Body).Decode(&changePasswordRequest)
+	if err != nil {
+		http.Error(w, "bad body format", http.StatusBadRequest)
+		return
+	}
+
+	userDomain := userfactory.CreateUserDomain()
+	err = userDomain.ChangePassword(userId, changePasswordRequest.OldPassword, changePasswordRequest.NewPassword)
+	if err != nil {
+		http.Error(w, "couldn't update password", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

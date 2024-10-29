@@ -2,6 +2,7 @@ package users
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/google/uuid"
 	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/companyfactory"
@@ -15,6 +16,8 @@ import (
 type IUserDomain interface {
 	CreateUser(name, password, email, phone string, roleId int, company company.CompanyInfo) error
 	UserDetails(userId string) (UserDetails, error)
+	UpdateUser(userId, name, phone string) error
+	ChangePassword(userId, oldPassword, newPassword string) error
 }
 
 type UserDomain struct {
@@ -106,4 +109,50 @@ func (d *UserDomain) UserDetails(userId string) (UserDetails, error) {
 	}
 
 	return userDetails, nil
+}
+
+func (d *UserDomain) UpdateUser(userId, name, phone string) error {
+
+	userModel := models.User{
+		Id:    userId,
+		Name:  name,
+		Phone: phone,
+	}
+
+	err := d.UserRepo.UpdateUser(userModel)
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("couldn't update user")
+	}
+
+	return nil
+}
+
+func (d *UserDomain) ChangePassword(userId, oldPassword, newPassword string) error {
+	userModel, err := d.UserRepo.FindUserById(userId)
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("couldn't find user")
+	}
+
+	passwordMatching := utils.ValidatePasswordHash(oldPassword, userModel.Password)
+	if !passwordMatching {
+		return fmt.Errorf("password not matching")
+	}
+
+	newHashedPassword, err := utils.HashPassword(newPassword)
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("failed to hash password")
+	}
+
+	userModel.Password = newHashedPassword
+
+	err = d.UserRepo.UpdatePassword(userModel)
+	if err != nil {
+		log.Println(err)
+		return fmt.Errorf("couldn't update password")
+	}
+
+	return nil
 }

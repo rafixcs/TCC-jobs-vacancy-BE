@@ -25,4 +25,5 @@ type UserApplies struct {
 	Email        string `json:"email"`
 	FullName     string `json:"full_name"`
 	Phone        string `json:"phone"`
+	UrlResume    string `json:"url_resume"`
 }

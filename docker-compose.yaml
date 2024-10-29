@@ -1,17 +1,61 @@
+version: '3'
 services:
   db:
     image: "postgres"
-    container_name: db
+    container_name: jobs-db
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=root
+      - POSTGRES_DB=jobsfinder
     ports:
-      - "12345:12345"
+      - "5432:5432"
     volumes:
-      - ./migration/0-initial-db.sql:/docker-entrypoint-initdb.d/0-docker-database-initial.sql
+      - ./migration/0-initial-db.sql:/docker-entrypoint-initdb.d/0-initial-db.sql
       - ./migration/1-user-roles.sql:/docker-entrypoint-initdb.d/1-user-roles.sql
       - ./migration/2-search-vector-trigger.sql:/docker-entrypoint-initdb.d/2-search-vector-trigger.sql
       - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - jobs-net
     restart: always
-    command: -p 12345
+
+  app:
+    build: 
+      context: ./
+      target: prd
+    container_name: jobs-be
+    depends_on:
+      - db
+    networks:
+      - jobs-net
+    environment:
+      - TOKEN_SECRET=testecaralhow
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=jobsfinder
+      - DB_PORT=5432
+      - DATASETS_PATH=/app/datasets/
+      - EXPORTS_PATH=/app/exports/
+      - ENV_APP=DEV
+      - PORT=8080
+      
+      - R2_ENDPOINT=https://0b8ac4280b51b5b2db16b23f0ad9378c.r2.cloudflarestorage.com/jobs-vacancy-resumes
+      - BUCKET_NAME=jobs-vacancy-resumes
+      - CF_ACCESS_KEY=6761d939dee2e9b100961f2adb614ce9
+      - CF_SECRET_ACCESS_KEY=9af461455f0cb47df6c0be645e001da529132b36ede9b04617f14c27bcff2cb7
+
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+    restart: always
+    ports:
+      - "8080:8080"
+      - "2345:2345"
+    security_opt:
+      - "seccomp:unconfined"
+
+networks:
+  jobs-net:
+    driver: bridge
+volumes:
+  images_volume:

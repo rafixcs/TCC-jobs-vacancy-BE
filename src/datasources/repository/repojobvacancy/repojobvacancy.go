@@ -69,8 +69,8 @@ func (r *JobVacancyRepository) CreateUserJobApply(userApply models.UserApplies) 
 	db := r.Datasource.GetDB()
 
 	query := `INSERT INTO user_applies (
-				id, job_vacancy_id, user_id, full_name, email, cover_letter, phone
-				) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+				id, job_vacancy_id, user_id, full_name, email, cover_letter, phone, url_resume
+				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
 
 	_, err = db.Exec(query,
 		userApply.Id,
@@ -80,6 +80,7 @@ func (r *JobVacancyRepository) CreateUserJobApply(userApply models.UserApplies) 
 		userApply.Email,
 		userApply.CoverLetter,
 		userApply.Phone,
+		userApply.UrlResume,
 	)
 
 	if err != nil {
@@ -123,7 +124,7 @@ func (r *JobVacancyRepository) GetJobVacancyApplies(jobId string) ([]models.User
 	defer r.Datasource.Close()
 	db := r.Datasource.GetDB()
 
-	query := `SELECT id, user_id, job_vacancy_id, full_name, email, phone, cover_letter FROM user_applies WHERE job_vacancy_id = $1`
+	query := `SELECT id, user_id, job_vacancy_id, full_name, email, phone, cover_letter, url_resume FROM user_applies WHERE job_vacancy_id = $1`
 	rows, err := db.Query(query, jobId)
 	if err != nil {
 		return []models.UserApplies{}, err
@@ -140,6 +141,7 @@ func (r *JobVacancyRepository) GetJobVacancyApplies(jobId string) ([]models.User
 			&userApply.Email,
 			&userApply.Phone,
 			&userApply.CoverLetter,
+			&userApply.UrlResume,
 		)
 
 		applies = append(applies, userApply)
@@ -159,7 +161,7 @@ func (r *JobVacancyRepository) GetUserJobApplies(userId string) ([]models.JobVac
 
 	query := `SELECT 
 		jv.id, jv.company_id, jv.user_id, jv.description, jv.title, jv.creation_date, cp.name,
-		ua.id, ua.cover_letter, ua.email, ua.full_name, ua.phone
+		ua.id, ua.cover_letter, ua.email, ua.full_name, ua.phone, ua.url_resume
 		FROM job_vacancies AS jv 
 		INNER JOIN user_applies AS ua ON ua.job_vacancy_id=jv.id 
 		INNER JOIN companies AS cp ON cp.id=jv.company_id
@@ -189,6 +191,7 @@ func (r *JobVacancyRepository) GetUserJobApplies(userId string) ([]models.JobVac
 			&userApply.Email,
 			&userApply.FullName,
 			&userApply.Phone,
+			&userApply.UrlResume,
 		)
 		userApply.UserId = jobVacancy.UserId
 		userApply.JobVacancyId = jobVacancy.Id
