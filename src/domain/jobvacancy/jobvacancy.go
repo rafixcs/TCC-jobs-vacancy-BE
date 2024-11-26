@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -260,6 +261,30 @@ func (d JobVacancyDomain) GetUsesAppliesToJobVacancy(jobId string) ([]JobVacancy
 			Phone:       model.Phone,
 			UrlResume:   model.UrlResume,
 		}
+
+		sess, err := session.NewSession(&aws.Config{
+			Credentials: credentials.NewStaticCredentials(config.CF_ACCESS_KEY, config.CF_SECRET_ACCESS_KEY, ""),
+			Endpoint:    aws.String(config.R2_ENDPOINT),
+			Region:      aws.String("us-east-1"),
+		})
+
+		if err != nil {
+			log.Println(err)
+			return nil, fmt.Errorf("error creating AWS session")
+		}
+		svc := s3.New(sess)
+		segments := strings.Split(userApply.UrlResume, "/")
+		objectKey := segments[len(segments)-1]
+		req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
+			Bucket: aws.String(config.R2_BUCKET),
+			Key:    aws.String(objectKey),
+		})
+
+		urlStr, err := req.Presign(15 * time.Minute)
+		if err != nil {
+			return nil, err
+		}
+		userApply.UrlResume = urlStr
 
 		usersApplied = append(usersApplied, userApply)
 	}

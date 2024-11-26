@@ -7,7 +7,7 @@ import (
 
 type IUserRepository interface {
 	Create(userId, name, password, email, phone string, roleId int) error
-	CheckIfExists(name string) (bool, error)
+	CheckIfExists(name, email string) (bool, error)
 	FindUserByEmail(email string) (models.User, error)
 	FindUserById(userId string) (models.User, error)
 	UpdateUser(user models.User) error
@@ -32,7 +32,7 @@ func (r *UserRepository) Create(userId, name, password, email, phone string, rol
 	return err
 }
 
-func (r *UserRepository) CheckIfExists(name string) (bool, error) {
+func (r *UserRepository) CheckIfExists(name, email string) (bool, error) {
 	r.Datasource.Open()
 	err := r.Datasource.GetError()
 	if err != nil {
@@ -42,8 +42,8 @@ func (r *UserRepository) CheckIfExists(name string) (bool, error) {
 	db := r.Datasource.GetDB()
 
 	var alreadyCreatedUser bool
-	query := `SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM users WHERE name = $1`
-	row := db.QueryRow(query, name)
+	query := `SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END FROM users WHERE name = $1 OR email = $2`
+	row := db.QueryRow(query, name, email)
 	err = row.Scan(&alreadyCreatedUser)
 	if err != nil {
 		return false, err

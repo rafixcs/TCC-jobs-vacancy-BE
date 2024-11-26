@@ -64,8 +64,6 @@ CREATE TABLE "company_users"(
     "company_id" VARCHAR(255) NOT NULL,
     "user_id" VARCHAR(255) NOT NULL
 );
-CREATE INDEX "company_users_company_id_index" ON
-    "company_users"("company_id");
 ALTER TABLE
     "users" ADD CONSTRAINT "users_role_id_foreign" FOREIGN KEY("role_id") REFERENCES "user_roles"("id");
 ALTER TABLE

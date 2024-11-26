@@ -35,7 +35,7 @@ func (d *UserDomain) CreateUser(name, password, email, phone string, roleId int,
 		return fmt.Errorf("for company user, needs company name")
 	}
 
-	alreadyCreatedUser, err := d.UserRepo.CheckIfExists(name)
+	alreadyCreatedUser, err := d.UserRepo.CheckIfExists(name, email)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,9 @@ func (d *UserDomain) handleCompanyUserCreate(userId string, roleId int, companyI
 			companyDomain := companyfactory.CreateCompanyDomain()
 			company, err = companyDomain.CreateCompany(companyInfo.Name, companyInfo.Email, companyInfo.Description, companyInfo.Location)
 			if err != nil {
-				return err
+				if err.Error() != "company already created" {
+					return err
+				}
 			}
 		}
 

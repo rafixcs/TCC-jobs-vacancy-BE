@@ -1,3 +1,4 @@
 postgres-data
 __debug_*
 uploads/
+docker-compose.yaml

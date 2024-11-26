@@ -97,13 +97,6 @@ func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/*var requestContent RegisterUserApplyJobVacancyRequest
-	err = json.NewDecoder(r.Body).Decode(&requestContent)
-	if err != nil {
-		http.Error(w, "bad body format", http.StatusBadRequest)
-		return
-	}*/
-
 	var requestContent RegisterUserApplyJobVacancyRequest
 	requestContent.FullName = r.FormValue("full_name")
 	requestContent.Email = r.FormValue("email")
@@ -150,10 +143,14 @@ type GetCompaniesJobVacanciesResponse struct {
 
 func GetCompanyJobVacancies(w http.ResponseWriter, r *http.Request) {
 	tokenHeader := r.Header.Get("Authorization")
-	companyId, err := utils.GetCompanyIdFromToken(tokenHeader)
-	if err != nil {
-		http.Error(w, "failed to parse Authorization token", http.StatusUnauthorized)
-		return
+	var companyId string
+	var err error
+	if tokenHeader != "" {
+		companyId, err = utils.GetCompanyIdFromToken(tokenHeader)
+		if err != nil {
+			http.Error(w, "failed to parse Authorization token", http.StatusUnauthorized)
+			return
+		}
 	}
 
 	companyName := r.URL.Query().Get("company")
@@ -230,7 +227,7 @@ type GetUsersAppliesToJobVacancyResponse struct {
 func GetUsersAppliesToJobVacancy(w http.ResponseWriter, r *http.Request) {
 	jobId := r.URL.Query().Get("job_id")
 	if jobId == "" {
-		http.Error(w, "missing job_id", http.StatusUnauthorized)
+		http.Error(w, "missing job id", http.StatusUnauthorized)
 		return
 	}
 

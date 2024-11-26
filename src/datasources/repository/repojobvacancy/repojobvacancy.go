@@ -12,6 +12,7 @@ type IJobVacancyRepository interface {
 	CreateUserJobApply(userApply models.UserApplies) error
 	GetCompanyJobVacancies(companyName, companyId string) ([]models.JobVacancy, error)
 	GetUserJobApplies(userId string) ([]models.JobVacancy, []models.UserApplies, []string, error)
+	GetUserJobApply(userId, jobId string) (models.UserApplies, error)
 	GetJobVacancyApplies(jobId string) ([]models.UserApplies, error)
 	GetJobVacancyDetails(jobId string) (models.JobVacancy, string, error)
 	SearchJobVacancies(searchStatement string) ([]models.JobVacancy, []string, error)
@@ -148,6 +149,42 @@ func (r *JobVacancyRepository) GetJobVacancyApplies(jobId string) ([]models.User
 	}
 
 	return applies, nil
+}
+
+func (r *JobVacancyRepository) GetUserJobApply(userId, jobId string) (models.UserApplies, error) {
+
+	r.Datasource.Open()
+	err := r.Datasource.GetError()
+	if err != nil {
+		return models.UserApplies{}, nil
+	}
+	defer r.Datasource.Close()
+	db := r.Datasource.GetDB()
+
+	query := `SELECT
+				id, job_vacancy_id, user_id, cover_letter, email, full_name, phone, url_resume 
+			FROM user_applies
+			WHERE user_id = $1 and job_vacancy_id = $2`
+	rows, err := db.Query(query, userId, jobId)
+	if err != nil {
+		return models.UserApplies{}, err
+	}
+
+	var userApply models.UserApplies
+	if rows.Next() {
+		rows.Scan(
+			&userApply.Id,
+			&userApply.JobVacancyId,
+			&userApply.UserId,
+			&userApply.CoverLetter,
+			&userApply.Email,
+			&userApply.FullName,
+			&userApply.Phone,
+			&userApply.UrlResume,
+		)
+	}
+
+	return userApply, nil
 }
 
 func (r *JobVacancyRepository) GetUserJobApplies(userId string) ([]models.JobVacancy, []models.UserApplies, []string, error) {
