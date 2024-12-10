@@ -1,9 +1,14 @@
 package routes
 
 import (
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/rafixcs/tcc-job-vacancy/src/api/controller"
 	"github.com/rafixcs/tcc-job-vacancy/src/api/middleware"
+	httpSwagger "github.com/swaggo/http-swagger"
+
+	_ "github.com/rafixcs/tcc-job-vacancy/src/docs"
 )
 
 type JobRouter struct {
@@ -11,6 +16,10 @@ type JobRouter struct {
 }
 
 func (r *JobRouter) CreateRoutes() {
+	r.Router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
+	r.Router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`{"status":"alive"}`))
+	}).Methods("GET")
 	r.Router.HandleFunc("/api/v1/user", controller.CreateUser).Methods("POST")
 	r.Router.HandleFunc("/api/v1/user", controller.GetUserDetails).Methods("GET")
 	r.Router.HandleFunc("/api/v1/user", controller.UpdateUser).Methods("PUT")

@@ -8,7 +8,7 @@ RUN go mod download && go mod verify
 
 COPY ./src ./src
 
-RUN CGO_ENABLED=0 GOOS=linux go build -v -o mrkup-app ./src/cmd
+RUN CGO_ENABLED=0 GOOS=linux go build -v -o jobs-app ./src
 
 RUN apk add --no-cache ca-certificates
 
@@ -27,7 +27,7 @@ RUN go mod download && go mod verify
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
 COPY ./src ./src
-RUN go build -v -o /usr/local/bin/app ./src/cmd
+RUN go build -v -o /usr/local/bin/app ./src/
 
 ### Run the Delve debugger ###
 COPY ./dlv.sh /
@@ -42,8 +42,8 @@ WORKDIR /app
 
 EXPOSE 8080
 
-COPY --from=build /app/mrkup-app /app/
+COPY --from=build /app/jobs-app /app/
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-ENTRYPOINT [ "/app/mrkup-app" ]
+ENTRYPOINT [ "/app/jobs-app" ]

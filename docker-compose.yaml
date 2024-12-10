@@ -42,7 +42,7 @@ services:
       - R2_ENDPOINT=https://0b8ac4280b51b5b2db16b23f0ad9378c.r2.cloudflarestorage.com/jobs-vacancy-resumes
       - BUCKET_NAME=jobs-vacancy-resumes
       - CF_ACCESS_KEY=03b214c92321d4c49ec154edcd665df8
-      - CF_SECRET_ACCESS_KEY=a43642a76f97e3a8cd9e425eaeb66a6524cda7ebf979a0f74ffc7f5c26ee36dc
+      - CF_SECRET_ACCESS_KEY=7fc45a9fb7f83da9c8871df4e21b5059c442fc15739a415bd7f5637b53be60eb
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads

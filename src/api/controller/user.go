@@ -8,6 +8,8 @@ import (
 	"github.com/rafixcs/tcc-job-vacancy/src/api/factories/userfactory"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/company"
 	"github.com/rafixcs/tcc-job-vacancy/src/utils"
+
+	_ "github.com/rafixcs/tcc-job-vacancy/src/docs"
 )
 
 type CreateUserRequest struct {
@@ -19,6 +21,14 @@ type CreateUserRequest struct {
 	Phone    string              `json:"phone"`
 }
 
+// CreateUser godoc
+// @Summary Create user
+// @Description Create user
+// @Tags User
+// @Success 200
+// @Failure 400
+// @Failure 500
+// @Router /api/v1/user [post]
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var userRequest CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&userRequest)
