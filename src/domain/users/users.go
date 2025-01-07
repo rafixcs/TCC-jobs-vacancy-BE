@@ -11,6 +11,8 @@ import (
 	"github.com/rafixcs/tcc-job-vacancy/src/datasources/repository/repousers"
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/company"
 	"github.com/rafixcs/tcc-job-vacancy/src/utils"
+
+	_ "github.com/rafixcs/tcc-job-vacancy/docs"
 )
 
 type IUserDomain interface {
@@ -91,10 +93,10 @@ func (d *UserDomain) handleCompanyUserCreate(userId string, roleId int, companyI
 }
 
 type UserDetails struct {
-	Name   string `json:"name"`
-	Email  string `json:"email"`
-	Phone  string `json:"phone"`
-	RoleId int    `json:"role_id"`
+	Name   string `json:"name" example:"Rafael"`
+	Email  string `json:"email" example:"rafael.test@mail.com"`
+	Phone  string `json:"phone" example:"55999999999"`
+	RoleId int    `json:"role_id" example:"1"`
 }
 
 func (d *UserDomain) UserDetails(userId string) (UserDetails, error) {

@@ -7,6 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
 COPY ./src ./src
+COPY ./docs ./docs
 
 RUN CGO_ENABLED=0 GOOS=linux go build -v -o jobs-app ./src
 
@@ -27,6 +28,7 @@ RUN go mod download && go mod verify
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
 COPY ./src ./src
+COPY ./docs ./docs
 RUN go build -v -o /usr/local/bin/app ./src/
 
 ### Run the Delve debugger ###

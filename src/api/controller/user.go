@@ -9,22 +9,24 @@ import (
 	"github.com/rafixcs/tcc-job-vacancy/src/domain/company"
 	"github.com/rafixcs/tcc-job-vacancy/src/utils"
 
-	_ "github.com/rafixcs/tcc-job-vacancy/src/docs"
+	_ "github.com/rafixcs/tcc-job-vacancy/docs"
 )
 
 type CreateUserRequest struct {
-	Name     string              `json:"name"`
-	Email    string              `json:"email"`
-	Password string              `json:"password"`
-	RoleId   int                 `json:"role_id"`
+	Name     string              `json:"name" example:"Rafael"`
+	Email    string              `json:"email" example:"rafael.camargo.rs@gmail.com"`
+	Password string              `json:"password" example:"123456"`
+	RoleId   int                 `json:"role_id" example:"1"`
 	Company  company.CompanyInfo `json:"company"`
-	Phone    string              `json:"phone"`
+	Phone    string              `json:"phone" example:"55999999999"`
 }
 
 // CreateUser godoc
 // @Summary Create user
 // @Description Create user
 // @Tags User
+// @Accept json
+// @Param createuser body CreateUserRequest true "Create user"
 // @Success 200
 // @Failure 400
 // @Failure 500
@@ -56,6 +58,16 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+// GetUserDetails godoc
+// @Summary User details
+// @Description Get user details
+// @Tags User
+// @Param Authorization header string true "Authorization token"
+// @Produce json
+// @Success 200 {object} users.UserDetails "user details"
+// @Failure 400 "Bad request"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/user [get]
 func GetUserDetails(w http.ResponseWriter, r *http.Request) {
 	tokenHeader := r.Header.Get("Authorization")
 	userId, err := utils.GetUserIdFromToken(tokenHeader)
@@ -80,6 +92,16 @@ type UpdateUserRequest struct {
 	Phone string `json:"phone"`
 }
 
+// UpdateUser godoc
+// @Summary User details
+// @Description Get user details
+// @Tags User
+// @Param Authorization header string true "Authorization token"
+// @Param updateduser body UpdateUserRequest true "Update information"
+// @Success 200 "user updated"
+// @Failure 400 "Bad request"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/user [put]
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	tokenHeader := r.Header.Get("Authorization")
 	userId, err := utils.GetUserIdFromToken(tokenHeader)
@@ -110,6 +132,16 @@ type ChangePasswordRequest struct {
 	NewPassword string `json:"new_password"`
 }
 
+// ChangePasswordRequest godoc
+// @Summary Change user password
+// @Description Change user password
+// @Tags User
+// @Param Authorization header string true "Authorization token"
+// @Param changepassword body ChangePasswordRequest true "Change password"
+// @Success 200 "user updated"
+// @Failure 400 "Bad request"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/user/password [post]
 func ChangePassword(w http.ResponseWriter, r *http.Request) {
 	tokenHeader := r.Header.Get("Authorization")
 	userId, err := utils.GetUserIdFromToken(tokenHeader)

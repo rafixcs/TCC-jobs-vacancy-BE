@@ -8,7 +8,7 @@ import (
 	"github.com/rafixcs/tcc-job-vacancy/src/api/middleware"
 	httpSwagger "github.com/swaggo/http-swagger"
 
-	_ "github.com/rafixcs/tcc-job-vacancy/src/docs"
+	_ "github.com/rafixcs/tcc-job-vacancy/docs"
 )
 
 type JobRouter struct {

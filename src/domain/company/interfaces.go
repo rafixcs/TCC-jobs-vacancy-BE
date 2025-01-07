@@ -8,11 +8,11 @@ import (
 
 type CompanyInfo struct {
 	Id           string    `json:"id"`
-	Name         string    `json:"name"`
+	Name         string    `json:"name" example:"RafixCS"`
 	CreationDate time.Time `json:"creation_date"`
 	Description  string    `json:"description"`
-	Email        string    `json:"email"`
-	Location     string    `json:"location"`
+	Email        string    `json:"email" example:"rafix.company@mail.com"`
+	Location     string    `json:"location" example:"São Paulo, SP"`
 }
 
 func (CompanyInfo) TransformFromModel(companyModel models.Company) CompanyInfo {

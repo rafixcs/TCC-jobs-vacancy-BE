@@ -1,0 +1,165 @@
+definitions:
+  company.CompanyInfo:
+    properties:
+      creation_date:
+        type: string
+      description:
+        type: string
+      email:
+        example: rafix.company@mail.com
+        type: string
+      id:
+        type: string
+      location:
+        example: São Paulo, SP
+        type: string
+      name:
+        example: RafixCS
+        type: string
+    type: object
+  controller.ChangePasswordRequest:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    type: object
+  controller.CreateUserRequest:
+    properties:
+      company:
+        $ref: '#/definitions/company.CompanyInfo'
+      email:
+        example: rafael.camargo.rs@gmail.com
+        type: string
+      name:
+        example: Rafael
+        type: string
+      password:
+        example: "123456"
+        type: string
+      phone:
+        example: "55999999999"
+        type: string
+      role_id:
+        example: 1
+        type: integer
+    type: object
+  controller.UpdateUserRequest:
+    properties:
+      name:
+        type: string
+      phone:
+        type: string
+    type: object
+  users.UserDetails:
+    properties:
+      email:
+        example: rafael.test@mail.com
+        type: string
+      name:
+        example: Rafael
+        type: string
+      phone:
+        example: "55999999999"
+        type: string
+      role_id:
+        example: 1
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/user:
+    get:
+      description: Get user details
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user details
+          schema:
+            $ref: '#/definitions/users.UserDetails'
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+      summary: User details
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Create user
+      parameters:
+      - description: Create user
+        in: body
+        name: createuser
+        required: true
+        schema:
+          $ref: '#/definitions/controller.CreateUserRequest'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Create user
+      tags:
+      - User
+    put:
+      description: Get user details
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Update information
+        in: body
+        name: updateduser
+        required: true
+        schema:
+          $ref: '#/definitions/controller.UpdateUserRequest'
+      responses:
+        "200":
+          description: user updated
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+      summary: User details
+      tags:
+      - User
+  /api/v1/user/password:
+    post:
+      description: Change user password
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Change password
+        in: body
+        name: changepassword
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ChangePasswordRequest'
+      responses:
+        "200":
+          description: user updated
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+      summary: Change user password
+      tags:
+      - User
+swagger: "2.0"
