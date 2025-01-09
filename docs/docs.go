@@ -9,12 +9,390 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/auth": {
+            "post": {
+                "description": "authenticate user",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "authenticate user",
+                "parameters": [
+                    {
+                        "description": "Change password",
+                        "name": "authrequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.AuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/controller.AuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/v1/companies": {
+            "get": {
+                "description": "Create company",
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Create company",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/controller.GetCompaniesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/v1/company": {
+            "post": {
+                "description": "Create company",
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Create company",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Create company",
+                        "name": "createcompanyrequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.CreateCompanyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created company"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/v1/company/jobs": {
+            "get": {
+                "description": "Get company job vacancies",
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Get company job vacancies",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Company name",
+                        "name": "company",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Company job vacancies",
+                        "schema": {
+                            "$ref": "#/definitions/controller.GetCompaniesJobVacanciesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/v1/job": {
+            "post": {
+                "description": "Get job vacancy details",
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Get job vacancy details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job vacancy id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Created job vacancy",
+                        "schema": {
+                            "$ref": "#/definitions/jobvacancy.JobVacancyDetails"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/v1/job/applies": {
+            "get": {
+                "description": "Get users applies to job vacancy",
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Get users applies to job vacancy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Job id",
+                        "name": "job_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Users applies",
+                        "schema": {
+                            "$ref": "#/definitions/controller.GetUsersAppliesToJobVacancyResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/v1/job/apply": {
+            "post": {
+                "description": "Register user apply job vacancy",
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Register user apply job vacancy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Full name",
+                        "name": "full_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Email",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Phone",
+                        "name": "phone",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Cover letter",
+                        "name": "cover_letter",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Job id",
+                        "name": "job_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Resume",
+                        "name": "resume",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created user apply"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/v1/job/search": {
+            "get": {
+                "description": "Search job vacancies",
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Search job vacancies",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search value",
+                        "name": "value",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Job vacancies",
+                        "schema": {
+                            "$ref": "#/definitions/controller.SearchJobVacanciesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/v1/job/user": {
+            "get": {
+                "description": "Get user job vacancies",
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Get user job vacancies",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User job vacancies",
+                        "schema": {
+                            "$ref": "#/definitions/controller.UserJobAppliesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
         "/api/v1/user": {
             "get": {
                 "description": "Get user details",
@@ -184,6 +562,28 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.AuthRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "role_id": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.ChangePasswordRequest": {
             "type": "object",
             "properties": {
@@ -191,6 +591,58 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "old_password": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.CreateCompanyRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.CreateJobVacancyRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "experience_level": {
+                    "type": "string"
+                },
+                "job_type": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "requirements": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "responsibilities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "salary": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -223,6 +675,53 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.GetCompaniesJobVacanciesResponse": {
+            "type": "object",
+            "properties": {
+                "company": {
+                    "type": "string"
+                },
+                "job_vacancies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jobvacancy.JobVacancyInfo"
+                    }
+                }
+            }
+        },
+        "controller.GetCompaniesResponse": {
+            "type": "object",
+            "properties": {
+                "companies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/company.CompanyInfo"
+                    }
+                }
+            }
+        },
+        "controller.GetUsersAppliesToJobVacancyResponse": {
+            "type": "object",
+            "properties": {
+                "user_applies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jobvacancy.JobVacancyApplies"
+                    }
+                }
+            }
+        },
+        "controller.SearchJobVacanciesResponse": {
+            "type": "object",
+            "properties": {
+                "jobVacancies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jobvacancy.JobVacancyInfo"
+                    }
+                }
+            }
+        },
         "controller.UpdateUserRequest": {
             "type": "object",
             "properties": {
@@ -230,6 +729,150 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.UserJobAppliesResponse": {
+            "type": "object",
+            "properties": {
+                "jobApplies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jobvacancy.UserJobApply"
+                    }
+                }
+            }
+        },
+        "jobvacancy.JobVacancyApplies": {
+            "type": "object",
+            "properties": {
+                "cover_letter": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "url_resume": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "jobvacancy.JobVacancyDetails": {
+            "type": "object",
+            "properties": {
+                "company": {
+                    "type": "string"
+                },
+                "creation_date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "experience_level": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_type": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "requirements": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "responsibilities": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "salary": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "jobvacancy.JobVacancyInfo": {
+            "type": "object",
+            "properties": {
+                "company": {
+                    "type": "string"
+                },
+                "creation_date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url_resume": {
+                    "type": "string"
+                }
+            }
+        },
+        "jobvacancy.UserJobApply": {
+            "type": "object",
+            "properties": {
+                "jobInfo": {
+                    "$ref": "#/definitions/jobvacancy.JobVacancyInfo"
+                },
+                "userApply": {
+                    "$ref": "#/definitions/models.UserApplies"
+                }
+            }
+        },
+        "models.UserApplies": {
+            "type": "object",
+            "properties": {
+                "cover_letter": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "job_vacancy_id": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "url_resume": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }
@@ -260,12 +903,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Jobs Vacancy Server",
+	Description:      "This is the server for the jobs vacancy project for a post graduation in full stack development",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

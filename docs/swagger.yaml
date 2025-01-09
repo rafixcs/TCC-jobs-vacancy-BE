@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   company.CompanyInfo:
     properties:
@@ -17,11 +18,59 @@ definitions:
         example: RafixCS
         type: string
     type: object
+  controller.AuthRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  controller.AuthResponse:
+    properties:
+      role_id:
+        type: integer
+      token:
+        type: string
+    type: object
   controller.ChangePasswordRequest:
     properties:
       new_password:
         type: string
       old_password:
+        type: string
+    type: object
+  controller.CreateCompanyRequest:
+    properties:
+      description:
+        type: string
+      email:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+    type: object
+  controller.CreateJobVacancyRequest:
+    properties:
+      description:
+        type: string
+      experience_level:
+        type: string
+      job_type:
+        type: string
+      location:
+        type: string
+      requirements:
+        items:
+          type: string
+        type: array
+      responsibilities:
+        items:
+          type: string
+        type: array
+      salary:
+        type: string
+      title:
         type: string
     type: object
   controller.CreateUserRequest:
@@ -44,11 +93,135 @@ definitions:
         example: 1
         type: integer
     type: object
+  controller.GetCompaniesJobVacanciesResponse:
+    properties:
+      company:
+        type: string
+      job_vacancies:
+        items:
+          $ref: '#/definitions/jobvacancy.JobVacancyInfo'
+        type: array
+    type: object
+  controller.GetCompaniesResponse:
+    properties:
+      companies:
+        items:
+          $ref: '#/definitions/company.CompanyInfo'
+        type: array
+    type: object
+  controller.GetUsersAppliesToJobVacancyResponse:
+    properties:
+      user_applies:
+        items:
+          $ref: '#/definitions/jobvacancy.JobVacancyApplies'
+        type: array
+    type: object
+  controller.SearchJobVacanciesResponse:
+    properties:
+      jobVacancies:
+        items:
+          $ref: '#/definitions/jobvacancy.JobVacancyInfo'
+        type: array
+    type: object
   controller.UpdateUserRequest:
     properties:
       name:
         type: string
       phone:
+        type: string
+    type: object
+  controller.UserJobAppliesResponse:
+    properties:
+      jobApplies:
+        items:
+          $ref: '#/definitions/jobvacancy.UserJobApply'
+        type: array
+    type: object
+  jobvacancy.JobVacancyApplies:
+    properties:
+      cover_letter:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      phone:
+        type: string
+      url_resume:
+        type: string
+      user_id:
+        type: string
+    type: object
+  jobvacancy.JobVacancyDetails:
+    properties:
+      company:
+        type: string
+      creation_date:
+        type: string
+      description:
+        type: string
+      experience_level:
+        type: string
+      id:
+        type: string
+      job_type:
+        type: string
+      location:
+        type: string
+      requirements:
+        items:
+          type: string
+        type: array
+      responsibilities:
+        items:
+          type: string
+        type: array
+      salary:
+        type: string
+      title:
+        type: string
+    type: object
+  jobvacancy.JobVacancyInfo:
+    properties:
+      company:
+        type: string
+      creation_date:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      location:
+        type: string
+      title:
+        type: string
+      url_resume:
+        type: string
+    type: object
+  jobvacancy.UserJobApply:
+    properties:
+      jobInfo:
+        $ref: '#/definitions/jobvacancy.JobVacancyInfo'
+      userApply:
+        $ref: '#/definitions/models.UserApplies'
+    type: object
+  models.UserApplies:
+    properties:
+      cover_letter:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      job_vacancy_id:
+        type: string
+      phone:
+        type: string
+      url_resume:
+        type: string
+      user_id:
         type: string
     type: object
   users.UserDetails:
@@ -66,9 +239,266 @@ definitions:
         example: 1
         type: integer
     type: object
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the server for the jobs vacancy project for a post graduation
+    in full stack development
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Jobs Vacancy Server
+  version: "1.0"
 paths:
+  /api/v1/auth:
+    post:
+      description: authenticate user
+      parameters:
+      - description: Change password
+        in: body
+        name: authrequest
+        required: true
+        schema:
+          $ref: '#/definitions/controller.AuthRequest'
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/controller.AuthResponse'
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+      summary: authenticate user
+      tags:
+      - Auth
+  /api/v1/companies:
+    get:
+      description: Create company
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/controller.GetCompaniesResponse'
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+      summary: Create company
+      tags:
+      - Company
+  /api/v1/company:
+    post:
+      description: Create company
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Create company
+        in: body
+        name: createcompanyrequest
+        required: true
+        schema:
+          $ref: '#/definitions/controller.CreateCompanyRequest'
+      responses:
+        "201":
+          description: Created company
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Create company
+      tags:
+      - Company
+  /api/v1/company/jobs:
+    get:
+      description: Get company job vacancies
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Company name
+        in: query
+        name: company
+        type: string
+      responses:
+        "200":
+          description: Company job vacancies
+          schema:
+            $ref: '#/definitions/controller.GetCompaniesJobVacanciesResponse'
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Get company job vacancies
+      tags:
+      - Jobs
+  /api/v1/job:
+    post:
+      description: Get job vacancy details
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Job vacancy id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Created job vacancy
+          schema:
+            $ref: '#/definitions/jobvacancy.JobVacancyDetails'
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Get job vacancy details
+      tags:
+      - Jobs
+  /api/v1/job/applies:
+    get:
+      description: Get users applies to job vacancy
+      parameters:
+      - description: Job id
+        in: query
+        name: job_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Users applies
+          schema:
+            $ref: '#/definitions/controller.GetUsersAppliesToJobVacancyResponse'
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Get users applies to job vacancy
+      tags:
+      - Jobs
+  /api/v1/job/apply:
+    post:
+      description: Register user apply job vacancy
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Full name
+        in: formData
+        name: full_name
+        required: true
+        type: string
+      - description: Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: Phone
+        in: formData
+        name: phone
+        required: true
+        type: string
+      - description: Cover letter
+        in: formData
+        name: cover_letter
+        required: true
+        type: string
+      - description: Job id
+        in: formData
+        name: job_id
+        required: true
+        type: string
+      - description: Resume
+        in: formData
+        name: resume
+        required: true
+        type: file
+      responses:
+        "201":
+          description: Created user apply
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Register user apply job vacancy
+      tags:
+      - Jobs
+  /api/v1/job/search:
+    get:
+      description: Search job vacancies
+      parameters:
+      - description: Search value
+        in: query
+        name: value
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Job vacancies
+          schema:
+            $ref: '#/definitions/controller.SearchJobVacanciesResponse'
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Search job vacancies
+      tags:
+      - Jobs
+  /api/v1/job/user:
+    get:
+      description: Get user job vacancies
+      parameters:
+      - description: Authorization token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: User job vacancies
+          schema:
+            $ref: '#/definitions/controller.UserJobAppliesResponse'
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+      summary: Get user job vacancies
+      tags:
+      - Jobs
   /api/v1/user:
     get:
       description: Get user details

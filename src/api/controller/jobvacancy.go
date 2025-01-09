@@ -22,6 +22,17 @@ type CreateJobVacancyRequest struct {
 	ExperienceLevel  string   `json:"experience_level"`
 }
 
+// CreateJobVacancy godoc
+// @Summary Create job vacancy
+// @Description Create job vacancy
+// @Tags Jobs
+// @Param Authorization header string true "Authorization token"
+// @Param createjobvacancyrequest body CreateJobVacancyRequest true "Create job vacancy"
+// @Success 201 "Created job vacancy"
+// @Failure 400 "Bad request"
+// @Failure 401 "Unauthorized"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/job [post]
 func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 	tokenHeader := r.Header.Get("Authorization")
 	userId, err := utils.GetUserIdFromToken(tokenHeader)
@@ -61,6 +72,17 @@ func CreateJobVacancy(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
+// GetJobVacancyDetails godoc
+// @Summary Get job vacancy details
+// @Description Get job vacancy details
+// @Tags Jobs
+// @Param Authorization header string true "Authorization token"
+// @Param id path string true "Job vacancy id"
+// @Success 200 {object} jobvacancy.JobVacancyDetails "Created job vacancy"
+// @Failure 400 "Bad request"
+// @Failure 401 "Unauthorized"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/job [post]
 func GetJobVacancyDetails(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -83,6 +105,22 @@ type RegisterUserApplyJobVacancyRequest struct {
 	Phone       string `json:"phone"`
 }
 
+// RegisterUserApplyJobVacancy godoc
+// @Summary Register user apply job vacancy
+// @Description Register user apply job vacancy
+// @Tags Jobs
+// @Param Authorization header string true "Authorization token"
+// @Param full_name formData string true "Full name"
+// @Param email formData string true "Email"
+// @Param phone formData string true "Phone"
+// @Param cover_letter formData string true "Cover letter"
+// @Param job_id formData string true "Job id"
+// @Param resume formData file true "Resume"
+// @Success 201 "Created user apply"
+// @Failure 400 "Bad request"
+// @Failure 401 "Unauthorized"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/job/apply [post]
 func RegisterUserApplyJobVacancy(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseMultipartForm(10 << 20) // 10 MB
 	if err != nil {
@@ -141,6 +179,17 @@ type GetCompaniesJobVacanciesResponse struct {
 	JobVacancies []jobvacancy.JobVacancyInfo `json:"job_vacancies"`
 }
 
+// GetCompanyJobVacancies godoc
+// @Summary Get company job vacancies
+// @Description Get company job vacancies
+// @Tags Jobs
+// @Param Authorization header string true "Authorization token"
+// @Param company query string false "Company name"
+// @Success 200 {object} GetCompaniesJobVacanciesResponse "Company job vacancies"
+// @Failure 400 "Bad request"
+// @Failure 401 "Unauthorized"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/company/jobs [get]
 func GetCompanyJobVacancies(w http.ResponseWriter, r *http.Request) {
 	tokenHeader := r.Header.Get("Authorization")
 	var companyId string
@@ -178,6 +227,16 @@ type UserJobAppliesResponse struct {
 	JobApplies []jobvacancy.UserJobApply
 }
 
+// GetUserJobVacancies godoc
+// @Summary Get user job vacancies
+// @Description Get user job vacancies
+// @Tags Jobs
+// @Param Authorization header string true "Authorization token"
+// @Success 200 {object} UserJobAppliesResponse "User job vacancies"
+// @Failure 400 "Bad request"
+// @Failure 401 "Unauthorized"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/job/user [get]
 func GetUserJobVacancies(w http.ResponseWriter, r *http.Request) {
 	tokenHeader := r.Header.Get("Authorization")
 	userId, err := utils.GetUserIdFromToken(tokenHeader)
@@ -204,6 +263,16 @@ type SearchJobVacanciesResponse struct {
 	JobVacancies []jobvacancy.JobVacancyInfo
 }
 
+// SearchJobVacancies godoc
+// @Summary Search job vacancies
+// @Description Search job vacancies
+// @Tags Jobs
+// @Param value query string true "Search value"
+// @Success 200 {object} SearchJobVacanciesResponse "Job vacancies"
+// @Failure 400 "Bad request"
+// @Failure 401 "Unauthorized"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/job/search [get]
 func SearchJobVacancies(w http.ResponseWriter, r *http.Request) {
 	searchStatement := r.URL.Query().Get("value")
 	jobVacancyDomain := jobfactory.CreateJobVacancyDomain()
@@ -224,6 +293,16 @@ type GetUsersAppliesToJobVacancyResponse struct {
 	UsersApplies []jobvacancy.JobVacancyApplies `json:"user_applies"`
 }
 
+// GetUsersAppliesToJobVacancy godoc
+// @Summary Get users applies to job vacancy
+// @Description Get users applies to job vacancy
+// @Tags Jobs
+// @Param job_id query string true "Job id"
+// @Success 200 {object} GetUsersAppliesToJobVacancyResponse "Users applies"
+// @Failure 400 "Bad request"
+// @Failure 401 "Unauthorized"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/job/applies [get]
 func GetUsersAppliesToJobVacancy(w http.ResponseWriter, r *http.Request) {
 	jobId := r.URL.Query().Get("job_id")
 	if jobId == "" {

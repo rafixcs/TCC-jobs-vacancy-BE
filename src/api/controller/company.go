@@ -17,6 +17,17 @@ type CreateCompanyRequest struct {
 	Location    string `json:"location"`
 }
 
+// CreateCompany godoc
+// @Summary Create company
+// @Description Create company
+// @Tags Company
+// @Param Authorization header string true "Authorization token"
+// @Param createcompanyrequest body CreateCompanyRequest true "Create company"
+// @Success 201 "Created company"
+// @Failure 400 "Bad request"
+// @Failure 401 "Unauthorized"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/company [post]
 func CreateCompany(w http.ResponseWriter, r *http.Request) {
 	var createCompanyRequest CreateCompanyRequest
 
@@ -43,6 +54,15 @@ type GetCompaniesResponse struct {
 	Companies []company.CompanyInfo
 }
 
+// CreateCompany godoc
+// @Summary Create company
+// @Description Create company
+// @Tags Company
+// @Param Authorization header string true "Authorization token"
+// @Success 200 {object} GetCompaniesResponse "Success"
+// @Failure 400 "Bad request"
+// @Failure 500 "Internal server error"
+// @Router /api/v1/companies [get]
 func GetCompanies(w http.ResponseWriter, r *http.Request) {
 	companyDomain := companyfactory.CreateCompanyDomain()
 
