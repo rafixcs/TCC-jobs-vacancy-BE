@@ -3,10 +3,8 @@ services:
   db:
     image: "postgres"
     container_name: jobs-db
-    environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=jobsfinder
+    env_file:
+      - db.env
     ports:
       - "5432:5432"
     volumes:
@@ -27,22 +25,8 @@ services:
       - db
     networks:
       - jobs-net
-    environment:
-      - TOKEN_SECRET=testecaralhow
-      - DB_HOST=db
-      - DB_USER=root
-      - DB_PASSWORD=root
-      - DB_NAME=jobsfinder
-      - DB_PORT=5432
-      - DATASETS_PATH=/app/datasets/
-      - EXPORTS_PATH=/app/exports/
-      - ENV_APP=DEV
-      - PORT=8080
-      
-      - R2_ENDPOINT=https://0b8ac4280b51b5b2db16b23f0ad9378c.r2.cloudflarestorage.com/jobs-vacancy-resumes
-      - BUCKET_NAME=jobs-vacancy-resumes
-      - CF_ACCESS_KEY=03b214c92321d4c49ec154edcd665df8
-      - CF_SECRET_ACCESS_KEY=7fc45a9fb7f83da9c8871df4e21b5059c442fc15739a415bd7f5637b53be60eb
+    env_file:
+      - server.env
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
