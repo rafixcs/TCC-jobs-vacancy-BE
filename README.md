@@ -66,7 +66,7 @@ Com isso podemos gerar a documentacao com o comando:
 Quando o servidor estiver rodando, ao acessarmos o endereco: `/swagger/index.html#/Auth/post_api_v1_auth`
 
 <p align="center">
-  <img src=".git/images/swagger_example.png" />
+  <img src="images/swagger_example.png" />
 </p>
 
 
