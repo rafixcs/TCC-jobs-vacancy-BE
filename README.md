@@ -94,6 +94,32 @@ Para executar o server localmente:
 git clone https://github.com/rafixcs/TCC-jobs-vacancy-BE.git
 ```
 
+3. Criar os arquivos de ambiente
+- server.env
+```env
+TOKEN_SECRET="testecaralhow"
+DB_HOST="db"
+DB_USER="<usuario bd default: root>"
+DB_PASSWORD="<senha db default: root>"
+DB_NAME="<noma da db default: jobsfinder>"
+DB_PORT="<porta da bd default: 5432>"
+EXPORTS_PATH="<diretorio de exportacao default: /app/exports>"
+ENV_APP="<ENV ou PRD>"
+PORT="<port>"
+
+R2_ENDPOINT="<endpoint>"
+BUCKET_NAME="<nome do bucket>"
+CF_ACCESS_KEY="<chave de acesso>"
+CF_SECRET_ACCESS_KEY="<chave de acesso secreto>"
+```
+
+- db.env
+```env
+POSTGRES_USER="<usuario db default: root>"
+POSTGRES_PASSWORD="<senha db default: root>"
+POSTGRES_DB="<nome db default: jobsfinder>"
+```
+
 2. Subir o docker com docker compose
 ```shell
 docker compose up --build
