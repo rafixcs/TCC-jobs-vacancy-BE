@@ -10,7 +10,6 @@ Backend para o trabalho de conclusao de curso de pos graduacao desenvolvimento f
 - [Princípios](#principios)
 - [Documentaçao](#documentacao)
 - [Requisitos](#requisitos)
-- [Estrutura](#estrutura)
 - [Executando](#executando)
 
 ## Principios
