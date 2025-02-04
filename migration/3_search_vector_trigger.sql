@@ -9,7 +9,7 @@ SET search_vector = to_tsvector('english', coalesce(title, '') || ' ' || coalesc
 CREATE FUNCTION job_vacancies_search_vector_trigger() 
 RETURNS trigger AS $$ 
 BEGIN 
-  NEW.search_vector := 
+  NEW.search_vector = 
     to_tsvector('english', coalesce(NEW.title, '') || ' ' || coalesce(NEW.description, '')); 
   RETURN NEW; 
 END; 
