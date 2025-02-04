@@ -41,7 +41,7 @@ jobs:
     - name: Run database migration
       run: |
         go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-        migrate -database "postgres://testuser:testpassword@localhost:5432/testdb?sslmode=disable" -path ./migrations up
+        migrate -database "postgres://root:root@localhost:5432/jobsfinder?sslmode=disable" -path ./migrations up
     - name: Test
       run: go test -v ./src/...
     
