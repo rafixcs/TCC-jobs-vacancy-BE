@@ -1,0 +1,14 @@
+version: '3'
+services:
+  db:
+    image: "postgres"
+    container_name: jobs-db
+    env_file:
+      - db.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./migration/0-initial-db.sql:/docker-entrypoint-initdb.d/0-initial-db.sql
+      - ./migration/1-user-roles.sql:/docker-entrypoint-initdb.d/1-user-roles.sql
+      - ./migration/2-search-vector-trigger.sql:/docker-entrypoint-initdb.d/2-search-vector-trigger.sql
+    restart: always
