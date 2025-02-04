@@ -7,8 +7,20 @@ on:
     branches: [ "main", "dev" ]
 
 jobs:
+  int-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1,.22'
+    - name: Test
+      run: go test -v ./src/...
+    
 
   build:
+    needs: int-tests
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
