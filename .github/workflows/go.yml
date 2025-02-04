@@ -9,6 +9,28 @@ on:
 jobs:
   int-tests:
     runs-on: ubuntu-latest
+    env:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: jobsfinder
+      DB_PORT: 5432
+      PORT: 8080
+
+    services:
+      postgres:
+        image: postgres:latest
+        env: 
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: jobsfinder
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U testuser"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     steps:
     - uses: actions/checkout@v4
     - name: Set up Go
