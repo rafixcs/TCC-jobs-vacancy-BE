@@ -1,3 +1,4 @@
+-- +goose Up
 ALTER TABLE job_vacancies
 ADD COLUMN search_vector tsvector;
 
