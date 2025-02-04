@@ -31,13 +31,18 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-          --mount type=bind,source=${{ github.workspace }}/migration/,target=/docker-entrypoint-initdb.d/
-    steps:
+          # --mount type=bind,source=${{ github.workspace }}/migration/,target=/docker-entrypoint-initdb.d/
+    
+    steps:    
     - uses: actions/checkout@v4
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
         go-version: '1.22'
+    - name: Run database migration
+      run: |
+        go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+        migrate -database "postgres://testuser:testpassword@localhost:5432/testdb?sslmode=disable" -path ./migrations up
     - name: Test
       run: go test -v ./src/...
     
