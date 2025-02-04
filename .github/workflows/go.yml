@@ -46,10 +46,10 @@ jobs:
         which goose
 
     - name: Up migrations
-      run: goose -allow-missing -dir=./migrations postgres postgres://me:pass@localhost:5432/main?sslmode=disable up
+      run: goose -allow-missing -dir=./migrations postgres postgres://root:root@localhost:5432/jobsfinder?sslmode=disable up
 
     - name: Down migrations
-      run: goose -allow-missing -dir=./migrations postgres postgres://me:pass@localhost:5432/main?sslmode=disable down
+      run: goose -allow-missing -dir=./migrations postgres postgres://root:root@localhost:5432/jobsfinder?sslmode=disable down
     
     
     - name: Test
