@@ -31,6 +31,7 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+          --mount type=bind,source=${{ github.workspace }}/migration, target=/docker-entrypoint-initdb.d/
     steps:
     - uses: actions/checkout@v4
     - name: Set up Go
