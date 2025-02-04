@@ -7,13 +7,15 @@ SET search_vector = to_tsvector('english', coalesce(title, '') || ' ' || coalesc
 
 
 CREATE FUNCTION job_vacancies_search_vector_trigger() 
-RETURNS trigger AS $$ 
+RETURNS trigger 
+LANGUAGE plpgsql 
+AS $$ 
 BEGIN 
-  NEW.search_vector = 
+  NEW.search_vector := 
     to_tsvector('english', coalesce(NEW.title, '') || ' ' || coalesce(NEW.description, '')); 
   RETURN NEW; 
 END; 
-$$ LANGUAGE plpgsql;
+$$;
 
 CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE
 ON job_vacancies FOR EACH ROW EXECUTE FUNCTION job_vacancies_search_vector_trigger();
