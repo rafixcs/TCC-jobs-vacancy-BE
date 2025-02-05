@@ -45,15 +45,16 @@ jobs:
         sudo GOOSE_INSTALL=/usr sh install.sh
         which goose
 
-    - name: Up migrations
-      run: goose -allow-missing -dir=./migration postgres postgres://root:root@localhost:5432/jobsfinder?sslmode=disable up
-
-    - name: Down migrations
-      run: goose -allow-missing -dir=./migration postgres postgres://root:root@localhost:5432/jobsfinder?sslmode=disable down
-    
+    - name: Run database migrations
+      run: |
+        go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+        migrate -database "postgres://root:root@localhost:5432/jobsfinder?sslmode=disable" -path ./migration up
     
     - name: Test
       run: go test -v ./src/...
+
+    - name: Down migrations
+      run: migrate -database "postgres://root:root@localhost:5432/jobsfinder?sslmode=disable" -path ./migration up
     
 
   build:
