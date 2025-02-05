@@ -1,4 +1,3 @@
--- goose Up
 CREATE TABLE "companies"(
     "id" VARCHAR(255) NOT NULL,
     "name" VARCHAR(255) NOT NULL,
@@ -82,12 +81,3 @@ ALTER TABLE
 ALTER TABLE
     "user_applies" ADD CONSTRAINT "user_applies_job_vacancy_id_foreign" FOREIGN KEY("job_vacancy_id") REFERENCES "job_vacancies"("id");
 
-
--- goose Down
--- DROP TABLE "user_applies";
--- DROP TABLE "user_logins";
--- DROP TABLE "job_vacancies";
--- DROP TABLE "company_users";
--- DROP TABLE "companies";
--- DROP TABLE "users";
--- DROP TABLE "user_roles";
