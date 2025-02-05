@@ -2,9 +2,12 @@ name: Go
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches:
+      - main
+      - dev
+      - 'releases/**'
   pull_request:
-    branches: [ "main", "dev" ]
+      types: [opened, synchronize, reopened]
 
 jobs:
   int-tests:
