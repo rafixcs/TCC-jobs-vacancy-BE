@@ -8,7 +8,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./migration/1_initial_db.sql:/docker-entrypoint-initdb.d/1_initial_db.sql
-      - ./migration/2_user_roles.sql:/docker-entrypoint-initdb.d/2_user_roles.sql
-      - ./migration/3_search_vector_trigger.sql:/docker-entrypoint-initdb.d/3_search_vector_trigger.sql
+      - ./migration/000001_initial_db.up.sql:/docker-entrypoint-initdb.d/000001_initial_db.up.sql
+      - ./migration/000002_user_roles.up.sql:/docker-entrypoint-initdb.d/000002_user_roles.up.sql
+      - ./migration/000003_search_vector_trigger.up.sql:/docker-entrypoint-initdb.d/000003_search_vector_trigger.up.sql
     restart: always
