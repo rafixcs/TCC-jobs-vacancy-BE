@@ -1,4 +1,4 @@
-name: Go
+name: CI
 
 on:
   push:
@@ -60,15 +60,12 @@ jobs:
       run: migrate -database "postgres://root:root@localhost:5432/jobsfinder?sslmode=disable" -path ./migration up
       
   sonarqube:
-    needs: int-tests
     runs-on: ubuntu-latest
     steps:
-    - 
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - 
-      name: SonarQube Scan
+    - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v4.2.1
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
