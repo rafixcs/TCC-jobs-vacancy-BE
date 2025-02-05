@@ -60,6 +60,7 @@ jobs:
       run: migrate -database "postgres://root:root@localhost:5432/jobsfinder?sslmode=disable" -path ./migration up
       
   sonarqube:
+    needs: int-tests
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
