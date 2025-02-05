@@ -53,7 +53,16 @@ func (d *UserDomain) CreateUser(name, password, email, phone string, roleId int,
 		return err
 	}
 
-	err = d.UserRepo.Create(userId, name, hashedPassword, email, phone, roleId)
+	user := models.User{
+		Id:       userId,
+		Name:     name,
+		Email:    email,
+		Password: hashedPassword,
+		Phone:    phone,
+		RoleId:   roleId,
+	}
+
+	err = d.UserRepo.Create(user)
 	if err != nil {
 		return err
 	}

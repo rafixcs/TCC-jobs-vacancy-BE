@@ -80,3 +80,4 @@ ALTER TABLE
     "company_users" ADD CONSTRAINT "company_users_company_id_foreign" FOREIGN KEY("company_id") REFERENCES "companies"("id");
 ALTER TABLE
     "user_applies" ADD CONSTRAINT "user_applies_job_vacancy_id_foreign" FOREIGN KEY("job_vacancy_id") REFERENCES "job_vacancies"("id");
+

@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - 'releases/**'
+  pull_request:
+      types: [opened, synchronize, reopened]
+
+jobs:
+  int-tests:
+    runs-on: ubuntu-latest
+    env:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: jobsfinder
+      DB_PORT: 5432
+      PORT: 8080
+
+    services:
+      postgres:
+        image: postgres:latest
+        env: 
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: jobsfinder
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U testuser"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    
+    steps:    
+    - uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+    
+    - name: Install golang-migrate
+      run: |
+        curl --output install.sh https://raw.githubusercontent.com/pressly/goose/master/install.sh
+        sudo GOOSE_INSTALL=/usr sh install.sh
+        which goose
+
+    - name: Run database migrations
+      run: |
+        go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+        migrate -database "postgres://root:root@localhost:5432/jobsfinder?sslmode=disable" -path ./migration up
+    
+    - name: Test
+      run: go test -v ./src/...
+
+    - name: Down migrations
+      run: migrate -database "postgres://root:root@localhost:5432/jobsfinder?sslmode=disable" -path ./migration up
+      
+  sonarqube:
+    needs: int-tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v4.2.1
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    
+
+  build:
+    needs: sonarqube
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+
+    - name: Build
+      run: go build -v ./...
+

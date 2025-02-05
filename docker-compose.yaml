@@ -8,9 +8,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./migration/0-initial-db.sql:/docker-entrypoint-initdb.d/0-initial-db.sql
-      - ./migration/1-user-roles.sql:/docker-entrypoint-initdb.d/1-user-roles.sql
-      - ./migration/2-search-vector-trigger.sql:/docker-entrypoint-initdb.d/2-search-vector-trigger.sql
+      - ./migration/000001_initial_db.up.sql:/docker-entrypoint-initdb.d/000001_initial_db.up.sql
+      - ./migration/000002_user_roles.up.sql:/docker-entrypoint-initdb.d/000002_user_roles.up.sql
+      - ./migration/000003_search_vector_trigger.up.sql:/docker-entrypoint-initdb.d/000003_search_vector_trigger.up.sql
       - ./postgres-data:/var/lib/postgresql/data
     networks:
       - jobs-net
