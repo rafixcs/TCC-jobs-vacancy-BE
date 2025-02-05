@@ -60,12 +60,12 @@ jobs:
     needs: int-tests
     runs-on: ubuntu-latest
     steps:
-    -
+    - 
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    -
-      name: SonarQube scan
+    - 
+      name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v4.2.1
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
