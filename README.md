@@ -98,7 +98,7 @@ git clone https://github.com/rafixcs/TCC-jobs-vacancy-BE.git
 3. Criar os arquivos de ambiente
 - server.env
 ```env
-TOKEN_SECRET="testecaralhow"
+TOKEN_SECRET="teste"
 DB_HOST="db"
 DB_USER="<usuario bd default: root>"
 DB_PASSWORD="<senha db default: root>"
